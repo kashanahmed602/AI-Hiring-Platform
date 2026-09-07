@@ -5,6 +5,9 @@ import CandidateLogin from './Auth/Candidate/loginCandidate'
 import CandidateSignup from './Auth/Candidate/signupCandidate'
 import RecruiterLogin from './Auth/Recruiter/loginRecruiter'
 import RecruiterSignup from './Auth/Recruiter/signupRecruiter'
+import ProtectedRoutes from './Auth/auth'
+import RecruiterDashboard from './Dashboard/Recruiter'
+import CandidateDashboard from './Dashboard/Candidate'
 
 function App() {
   return (
@@ -14,7 +17,8 @@ function App() {
       <Route path='/candidate/signup' element={<CandidateSignup/>} />
       <Route path='/recruiter/login' element={<RecruiterLogin/>} />
       <Route path='/recruiter/signup' element={<RecruiterSignup/>} />
-
+      <Route path='/recruiter/dashboard' element={<ProtectedRoutes><RecruiterDashboard/></ProtectedRoutes>} />
+      <Route path='/candidate/dashboard' element={<ProtectedRoutes><CandidateDashboard/></ProtectedRoutes>} />
     </Routes>
   )
 }

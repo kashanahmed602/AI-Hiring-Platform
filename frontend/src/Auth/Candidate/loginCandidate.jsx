@@ -23,11 +23,14 @@ const login = async (e) => {
         const response = await axios.post('http://localhost:3001/api/v1/candidate/login', {
             email,
             password
+        },{
+          withCredentials: true
         });
         
         alert("Login Successfully");
         setEmail('');
         setPassword('');
+        navigate('/candidate/dashboard');
 
     }catch(error){
         alert(error.message);
