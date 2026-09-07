@@ -7,7 +7,7 @@ import {
   Zap,
   CheckCircle2,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -73,14 +73,14 @@ const Landing = () => {
         <div className="flex items-center gap-3">
 
           <button
-            onClick={() => navigate("/choose-role")}
+            onClick={() => navigate("/candidate/login")}
             className="hidden sm:block px-4 py-2 text-sm text-slate-600 hover:text-violet-600 transition"
           >
             Sign in
           </button>
 
           <button
-            onClick={() => navigate("/choose-role")}
+            onClick={() => navigate("/recruiter/login")}
             className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-slate-900 hover:bg-violet-700 shadow-lg shadow-slate-900/10 hover:shadow-violet-500/20 transition"
           >
             Get Started
@@ -132,7 +132,7 @@ const Landing = () => {
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
 
               <button
-                onClick={() => navigate("/choose-role")}
+                onClick={() => navigate("/recruiter/signup")}
                 className="group w-full sm:w-auto px-7 py-4 rounded-2xl bg-slate-900 text-white font-semibold flex items-center justify-center gap-3 hover:bg-violet-700 hover:scale-[1.02] shadow-xl shadow-slate-900/10 hover:shadow-violet-500/20 transition"
               >
                 Start hiring smarter
@@ -144,7 +144,7 @@ const Landing = () => {
               </button>
 
               <button
-                onClick={() => navigate("/choose-role")}
+                onClick={() => navigate("/candidate/signup")}
                 className="w-full sm:w-auto px-7 py-4 rounded-2xl border border-slate-200 bg-white/80 text-slate-700 font-medium hover:border-violet-300 hover:text-violet-600 hover:bg-white shadow-sm transition"
               >
                 I'm looking for a job
@@ -555,7 +555,7 @@ const Landing = () => {
               </p>
 
               <button
-                onClick={() => navigate("/choose-role")}
+                onClick={() => navigate("/recruiter/signup")}
                 className="mt-8 px-7 py-4 rounded-2xl bg-slate-900 text-white font-semibold inline-flex items-center gap-3 hover:bg-violet-700 hover:scale-[1.02] shadow-xl transition"
               >
                 Get started

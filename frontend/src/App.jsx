@@ -1,10 +1,21 @@
+import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import Landing from './Pages/Landing'
+import CandidateLogin from './Auth/Candidate/loginCandidate'
+import CandidateSignup from './Auth/Candidate/signupCandidate'
+import RecruiterLogin from './Auth/Recruiter/loginRecruiter'
+import RecruiterSignup from './Auth/Recruiter/signupRecruiter'
+
 function App() {
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <h1 className="text-5xl font-bold text-white">
-        Tailwind is Working 🚀
-      </h1>
-    </div>
+    <Routes>
+      <Route path='/' element={<Landing/>} />
+      <Route path='/candidate/login' element={<CandidateLogin/>} />
+      <Route path='/candidate/signup' element={<CandidateSignup/>} />
+      <Route path='/recruiter/login' element={<RecruiterLogin/>} />
+      <Route path='/recruiter/signup' element={<RecruiterSignup/>} />
+
+    </Routes>
   )
 }
 
