@@ -20,10 +20,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import JobModal from "../Components/JobModal";
 
 const RecruiterDashboard = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [jobModal, setJobModal] = useState(false);
 
   const menuItems = [
     { icon: Home, label: "Overview", active: true },
@@ -81,6 +83,7 @@ const RecruiterDashboard = () => {
   ];
 
   return (
+    <>
     <div className="min-h-screen bg-[#f8fafc] text-slate-900">
 
       {/* Background */}
@@ -250,7 +253,7 @@ const RecruiterDashboard = () => {
               <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white" />
             </button>
 
-            <button className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-blue-700 transition">
+            <button onClick={() => setJobModal(true)} className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-blue-700 transition">
               <Plus size={15} />
               Create Job
             </button>
@@ -530,6 +533,11 @@ const RecruiterDashboard = () => {
         </div>
       </main>
     </div>
+
+    {jobModal && (
+      <JobModal onClose={() => setJobModal(false)} />
+    )}
+    </>
   );
 };
 

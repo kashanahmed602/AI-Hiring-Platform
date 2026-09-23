@@ -16,6 +16,7 @@ app.use(express.json());
 app.use('/api/v1', require('./Routes/userRoute'));
 app.use('/api/v1', require('./Routes/RecruiterRoute'))
 app.use('/api/v1', require('./Routes/authRoutes'))
+app.use('/api/v1', require('./Routes/JobRoutes'))
 
 
 module.exports = app;
