@@ -108,4 +108,112 @@ const userLogin = async (req, res) => {
     }
 }
 
-module.exports = { userRegister, userLogin };
+const getUserProfile = async (req, res) => {
+    try {
+        const  id  = req.user.id; // Assuming the user ID is stored in req.user_id after authentication
+        console.log("User DD",id);
+
+        const user = await Candidate.findById(id);
+
+        if (!user || user.role !== "candidate") {
+            return res.status(404).json({
+                success: false,
+                message: "User Not Found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "User Profile Retrieved",
+            user: user
+        })
+    }catch (error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+        console.log("error",error.message);
+
+    }
+};
+
+const updateUserProfile = async (req, res) => {
+    try {
+        const id = req.user.id;
+        const {name, email, phone} = req.body;
+
+        const user = await Candidate.findById(id);
+
+        if (!user || user.role !== "candidate") {
+            return res.status(404).json({
+                success: false,
+                message: "User Not Found"
+            });
+        }
+
+        // Update user profile
+        user.name = name || user.name;
+        user.email = email || user.email;
+        user.phone = phone || user.phone;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "User Profile Updated Successfully",
+            user: user
+        });
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+
+    }
+}
+
+const updatePassword = async (req, res) => {
+    try {
+        const id = req.user.id;
+        const { currentPassword, newPassword } = req.body;
+
+        const user = await Candidate.findById(id);
+
+        if (!user || user.role !== "candidate") {
+            return res.status(404).json({
+                success: false,
+                message: "User Not Found"
+            });
+        }
+//         console.log("currentPassword:", currentPassword);
+// console.log("newPassword:", newPassword);
+// console.log("user password exists:", !!user?.password);
+
+        const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isPasswordMatch) {
+            return res.status(400).json({
+                success: false,
+                message: "Current password is incorrect"
+            });
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        user.password = hashedNewPassword;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Password Updated Successfully"
+        });
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+        console.log("error",error.message);
+    }
+}
+
+module.exports = { userRegister, userLogin, getUserProfile, updateUserProfile, updatePassword };

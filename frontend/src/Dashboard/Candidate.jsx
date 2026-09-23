@@ -1,573 +1,777 @@
 import {
   Bell,
   BriefcaseBusiness,
+  CalendarDays,
+  CheckCircle2,
   ChevronRight,
+  Clock3,
   FileText,
-  Home,
-  LogOut,
+  Mail,
   Menu,
-  MessageSquare,
   Mic2,
-  Search,
-  Settings,
+  Phone,
   Sparkles,
   Target,
   TrendingUp,
   UserRound,
   X,
 } from "lucide-react";
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
+import Sidebar from "../Components/Sidebar";
+import ProfileModal from "../Pages/Profile";
+import ChangePasswordModal from "../Components/ChangePasswordModal";
 
 const CandidateDashboard = () => {
-  const navigate = useNavigate();
+  // =========================================
+  // SIDEBAR
+  // =========================================
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const jobs = [
+  // =========================================
+  // PROFILE
+  // =========================================
+
+  const [profileModalOpen, setProfileModalOpen] =
+    useState(false);
+
+  const [changePasswordModalOpen, setChangePasswordModalOpen] =
+    useState(false);
+
+  // =========================================
+  // USER
+  // =========================================
+
+  const [user, setUser] = useState({
+    name: "Kashan Ahmed",
+    email: "kashan@example.com",
+    phone: "+92 300 1234567",
+    headline: "Full Stack Developer",
+  });
+
+  // =========================================
+  // PROFILE UPDATE
+  // =========================================
+
+  const handleProfileUpdate = async (profileData) => {
+    try {
+      /*
+        Later API:
+
+        const response = await axios.put(
+          "http://localhost:3001/api/v1/profile",
+          profileData,
+          {
+            withCredentials: true,
+          }
+        );
+
+        const updatedUser = response.data.user;
+
+        setUser(updatedUser);
+      */
+
+      // Temporary frontend update
+      setUser((prev) => ({
+        ...prev,
+        ...profileData,
+      }));
+
+      setProfileModalOpen(false);
+    } catch (error) {
+      console.error(
+        "Profile update error:",
+        error.response?.data || error.message
+      );
+
+      throw error;
+    }
+  };
+
+  // =========================================
+  // CHANGE PASSWORD
+  // =========================================
+
+  const handleChangePassword = async (passwordData) => {
+    try {
+      /*
+        Later API:
+
+        const response = await axios.put(
+          "http://localhost:3001/api/v1/change-password",
+          passwordData,
+          {
+            withCredentials: true,
+          }
+        );
+      */
+
+      console.log("Password data:", passwordData);
+
+      setChangePasswordModalOpen(false);
+
+      alert("Password changed successfully");
+    } catch (error) {
+      console.error(
+        "Change password error:",
+        error.response?.data || error.message
+      );
+
+      throw error;
+    }
+  };
+
+  // =========================================
+  // STATS
+  // =========================================
+
+  const stats = [
     {
-      title: "Senior React Developer",
-      company: "TechNova",
-      location: "Remote",
-      salary: "$85k – $110k",
-      match: 96,
+      title: "Applications",
+      value: "18",
+      change: "+4 this week",
+      icon: BriefcaseBusiness,
     },
     {
-      title: "Frontend Engineer",
-      company: "Pixel Labs",
-      location: "Karachi",
-      salary: "$70k – $95k",
-      match: 91,
+      title: "Profile Views",
+      value: "126",
+      change: "+18% this week",
+      icon: UserRound,
     },
     {
-      title: "Full Stack Developer",
-      company: "CloudCore",
-      location: "Remote",
-      salary: "$80k – $105k",
-      match: 87,
+      title: "Interviews",
+      value: "5",
+      change: "2 upcoming",
+      icon: Mic2,
+    },
+    {
+      title: "Job Matches",
+      value: "34",
+      change: "8 new matches",
+      icon: Target,
     },
   ];
 
-  const menuItems = [
-    { icon: Home, label: "Overview", active: true },
-    { icon: Search, label: "Find Jobs" },
-    { icon: FileText, label: "My Resume" },
-    { icon: BriefcaseBusiness, label: "Applications" },
-    { icon: Target, label: "Assessments" },
-    { icon: Mic2, label: "Interviews" },
-    { icon: MessageSquare, label: "Messages" },
+  // =========================================
+  // JOBS
+  // =========================================
+
+  const recommendedJobs = [
+    {
+      company: "TechNova",
+      title: "Senior React Developer",
+      match: "96%",
+      type: "Full-time",
+      location: "Remote",
+    },
+    {
+      company: "Pixel Labs",
+      title: "Frontend Engineer",
+      match: "91%",
+      type: "Full-time",
+      location: "Karachi",
+    },
+    {
+      company: "CloudCore",
+      title: "Full Stack Developer",
+      match: "87%",
+      type: "Full-time",
+      location: "Remote",
+    },
+  ];
+
+  // =========================================
+  // UPCOMING
+  // =========================================
+
+  const upcomingItems = [
+    {
+      title: "AI Technical Interview",
+      company: "TechNova",
+      date: "Today",
+      time: "04:30 PM",
+      icon: Mic2,
+    },
+    {
+      title: "Technical Assessment",
+      company: "CloudCore",
+      date: "Tomorrow",
+      time: "11:00 AM",
+      icon: FileText,
+    },
+    {
+      title: "Application Update",
+      company: "Pixel Labs",
+      date: "Sep 24",
+      time: "10:00 AM",
+      icon: CheckCircle2,
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      {/* =========================================
+          BACKGROUND GLOWS
+      ========================================== */}
 
-      {/* Background glow */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-violet-300/20 blur-[130px]" />
-        <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] rounded-full bg-blue-300/20 blur-[130px]" />
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-violet-200/30 blur-3xl" />
+
+        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-blue-200/20 blur-3xl" />
       </div>
 
-      {/* Mobile overlay */}
+      {/* =========================================
+          MOBILE OVERLAY
+      ========================================== */}
+
       {sidebarOpen && (
         <div
+          className="fixed inset-0 z-30 bg-slate-900/30 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-30 lg:hidden"
         />
       )}
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed z-40 top-0 left-0 h-screen w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+      {/* =========================================
+          SIDEBAR
+      ========================================== */}
+
+      <div
+        className={`fixed z-40 top-0 left-0 h-screen w-64 transition-transform duration-300 ${
+          sidebarOpen
+            ? "translate-x-0"
+            : "-translate-x-full lg:translate-x-0"
+        }`}
       >
+        <Sidebar
+          role="candidate"
+          user={user}
+          onUserUpdate={(updatedUser) => {
+            setUser((prev) => ({
+              ...prev,
+              ...updatedUser,
+            }));
+          }}
+          onEditProfile={() => {
+            setSidebarOpen(false);
+            setProfileModalOpen(true);
+          }}
+          onClose={() => setSidebarOpen(false)}
+        />
+      </div>
 
-        {/* Logo */}
-        <div className="h-20 px-6 flex items-center justify-between border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/20">
-              <Sparkles size={19} />
-            </div>
+      {/* =========================================
+          MAIN CONTENT
+      ========================================== */}
 
-            <div>
-              <h1 className="font-bold text-lg">
-                Hire<span className="text-violet-600">Flow</span>
-              </h1>
+      <main className="lg:ml-64 min-h-screen relative">
+        {/* =========================================
+            TOP BAR
+        ========================================== */}
 
-              <p className="text-[8px] uppercase tracking-[0.2em] text-slate-400">
-                Candidate
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden text-slate-400"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-1">
-
-          <p className="px-3 mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-            Workspace
-          </p>
-
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <button
-                key={item.label}
-                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition
-                ${
-                  item.active
-                    ? "bg-violet-50 text-violet-700 font-semibold"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                }`}
-              >
-                <Icon size={18} />
-                {item.label}
-
-                {item.label === "Messages" && (
-                  <span className="ml-auto w-5 h-5 rounded-full bg-violet-600 text-white text-[10px] flex items-center justify-center">
-                    3
-                  </span>
-                )}
-              </button>
-            );
-          })}
-
-          <div className="pt-6">
-            <p className="px-3 mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-              Account
-            </p>
-
-            <button className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-slate-500 hover:bg-slate-50">
-              <Settings size={18} />
-              Settings
-            </button>
+        <header className="h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 sticky top-0 z-20">
+          <div className="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+            {/* Mobile Menu */}
 
             <button
-              onClick={() => navigate("/")}
-              className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-slate-500 hover:bg-red-50 hover:text-red-600 transition"
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 transition"
             >
-              <LogOut size={18} />
-              Logout
-            </button>
-          </div>
-        </nav>
-
-        {/* Profile mini card */}
-        <div className="p-4 border-t border-slate-100">
-          <div className="flex items-center gap-3 p-3 rounded-2xl bg-slate-50">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 text-white flex items-center justify-center font-semibold text-sm">
-              KA
-            </div>
-
-            <div className="min-w-0">
-              <p className="text-sm font-semibold truncate">
-                Kashan Ahmed
-              </p>
-
-              <p className="text-xs text-slate-400 truncate">
-                Full Stack Developer
-              </p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main */}
-      <main className="lg:ml-64 relative z-10">
-
-        {/* Topbar */}
-        <header className="h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 px-5 sm:px-8 flex items-center justify-between sticky top-0 z-20">
-
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100"
-          >
-            <Menu size={22} />
-          </button>
-
-          <div className="hidden lg:block">
-            <p className="text-xs text-slate-400">
-              Monday, September 7
-            </p>
-
-            <h2 className="font-semibold text-slate-900">
-              Candidate Workspace
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-3 ml-auto">
-
-            <button className="relative w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-violet-600 transition">
-              <Bell size={18} />
-
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-violet-600 ring-2 ring-white" />
+              <Menu size={20} />
             </button>
 
-            <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-slate-200">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 text-white flex items-center justify-center text-xs font-bold">
-                KA
-              </div>
+            <div className="hidden lg:block">
+              <p className="text-xs text-slate-400">
+                Candidate Workspace
+              </p>
 
-              <div>
-                <p className="text-sm font-semibold">
-                  Kashan Ahmed
-                </p>
-
-                <p className="text-[11px] text-slate-400">
-                  Candidate
-                </p>
-              </div>
+              <h1 className="text-lg font-bold text-slate-900">
+                Dashboard
+              </h1>
             </div>
 
+            {/* Right */}
+
+            <div className="flex items-center gap-3 ml-auto">
+              <div className="hidden sm:block text-right">
+                <p className="text-xs text-slate-400">
+                  Tuesday, September 22
+                </p>
+
+                <p className="text-sm font-semibold text-slate-700">
+                  Keep moving forward 🚀
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="relative w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition"
+              >
+                <Bell size={18} />
+
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-violet-600 ring-2 ring-white" />
+              </button>
+            </div>
           </div>
         </header>
 
-        {/* Content */}
-        <div className="p-5 sm:p-8 max-w-[1500px] mx-auto">
+        {/* =========================================
+            CONTENT
+        ========================================== */}
 
-          {/* Welcome */}
-          <div className="mb-7">
-            <p className="text-sm text-slate-500">
-              Welcome back 👋
-            </p>
+        <div className="p-4 sm:p-6 lg:p-8">
+          {/* =========================================
+              WELCOME
+          ========================================== */}
 
-            <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">
-              Let's move your career forward.
-            </h1>
+          <section className="mb-6">
+            <div className="relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-violet-500/15">
+              <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-white/10 blur-3xl" />
 
-            <p className="mt-2 text-sm text-slate-500">
-              Your AI career assistant has found opportunities matching your profile.
-            </p>
-          </div>
+              <div className="absolute right-10 bottom-0 w-32 h-32 rounded-full bg-blue-300/10 blur-2xl" />
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+              <div className="relative">
+                <div className="flex items-center gap-2 text-violet-100 text-xs font-semibold uppercase tracking-widest mb-3">
+                  <Sparkles size={14} />
+                  AI Career Workspace
+                </div>
 
-            {[
-              {
-                label: "Applications",
-                value: "18",
-                change: "+4 this week",
-                icon: BriefcaseBusiness,
-              },
-              {
-                label: "Profile Views",
-                value: "126",
-                change: "+18% this week",
-                icon: UserRound,
-              },
-              {
-                label: "Interviews",
-                value: "5",
-                change: "2 upcoming",
-                icon: Mic2,
-              },
-              {
-                label: "Job Matches",
-                value: "34",
-                change: "+9 new",
-                icon: Target,
-              },
-            ].map((stat) => {
+                <h2 className="text-2xl sm:text-3xl font-bold">
+                  Welcome back, {user.name.split(" ")[0]} 👋
+                </h2>
+
+                <p className="mt-2 text-sm sm:text-base text-violet-100 max-w-xl">
+                  Your AI-powered career workspace is ready.
+                  Track applications, improve your resume and
+                  prepare for your next interview.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* =========================================
+              PROFILE
+          ========================================== */}
+
+          <section className="mb-6">
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-sm">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4 min-w-0">
+                  {/* Avatar */}
+
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-blue-500 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-violet-500/20 shrink-0">
+                    {user.name
+                      ?.split(" ")
+                      .map((word) => word[0])
+                      .join("")
+                      .slice(0, 2)
+                      .toUpperCase()}
+                  </div>
+
+                  {/* User Info */}
+
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg sm:text-xl font-bold text-slate-900 truncate">
+                        {user.name}
+                      </h2>
+
+                      <span className="hidden sm:inline-flex px-2.5 py-1 rounded-full bg-violet-50 text-violet-600 text-[10px] font-semibold">
+                        Candidate
+                      </span>
+                    </div>
+
+                    <p className="text-sm text-slate-500 mt-1">
+                      {user.headline}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+                      <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                        <Mail size={13} />
+
+                        <span className="truncate max-w-[220px]">
+                          {user.email}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                        <Phone size={13} />
+
+                        <span>{user.phone}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Edit Profile */}
+
+                <button
+                  type="button"
+                  onClick={() => setProfileModalOpen(true)}
+                  title="Edit Profile"
+                  className="shrink-0 w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-500 flex items-center justify-center hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition"
+                >
+                  <UserRound size={17} />
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* =========================================
+              STATS
+          ========================================== */}
+
+          <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+            {stats.map((stat) => {
               const Icon = stat.icon;
 
               return (
                 <div
-                  key={stat.label}
+                  key={stat.title}
                   className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition"
                 >
-                  <div className="flex justify-between items-start">
-
-                    <div>
-                      <p className="text-xs text-slate-400">
-                        {stat.label}
-                      </p>
-
-                      <h3 className="mt-2 text-2xl font-bold text-slate-950">
-                        {stat.value}
-                      </h3>
-                    </div>
-
+                  <div className="flex items-center justify-between">
                     <div className="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
                       <Icon size={19} />
                     </div>
 
+                    <TrendingUp
+                      size={16}
+                      className="text-emerald-500"
+                    />
                   </div>
 
-                  <p className="mt-3 text-xs text-emerald-600 font-medium">
-                    {stat.change}
+                  <p className="text-sm text-slate-400 mt-4">
+                    {stat.title}
                   </p>
+
+                  <div className="flex items-end justify-between gap-3 mt-1">
+                    <h3 className="text-2xl font-bold text-slate-900">
+                      {stat.value}
+                    </h3>
+
+                    <span className="text-[10px] text-emerald-600 font-semibold">
+                      {stat.change}
+                    </span>
+                  </div>
                 </div>
               );
             })}
+          </section>
 
-          </div>
+          {/* =========================================
+              AI SCORE + RESUME
+          ========================================== */}
 
-          {/* AI Score + Resume */}
-          <div className="grid lg:grid-cols-3 gap-5 mb-6">
+          <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+            {/* AI SCORE */}
 
-            {/* AI Career Score */}
-            <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-600 rounded-3xl p-6 sm:p-7 text-white shadow-xl shadow-violet-500/15">
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Sparkles
+                      size={17}
+                      className="text-violet-600"
+                    />
 
-              <div className="absolute -right-20 -top-20 w-56 h-56 rounded-full bg-white/10 blur-2xl" />
-
-              <div className="relative">
-
-                <div className="flex items-start justify-between">
-
-                  <div>
-                    <div className="flex items-center gap-2 text-white/70 text-xs font-medium">
-                      <Sparkles size={14} />
-                      AI Career Intelligence
-                    </div>
-
-                    <h2 className="mt-2 text-xl font-semibold">
-                      Your career score
-                    </h2>
-
-                    <p className="mt-1 text-sm text-white/65">
-                      Based on your resume, skills and market demand.
-                    </p>
+                    <h3 className="font-bold text-slate-900">
+                      AI Career Score
+                    </h3>
                   </div>
 
-                  <TrendingUp size={22} className="text-emerald-300" />
-
+                  <p className="text-xs text-slate-400 mt-1">
+                    Based on your profile and activity
+                  </p>
                 </div>
 
-                <div className="mt-7 flex items-center gap-7">
+                <span className="text-xs font-semibold text-violet-600 bg-violet-50 px-3 py-1.5 rounded-full">
+                  Excellent
+                </span>
+              </div>
 
-                  <div className="relative w-28 h-28 shrink-0">
+              <div className="flex items-center gap-6 mt-7">
+                <div className="relative w-28 h-28 shrink-0">
+                  <div className="absolute inset-0 rounded-full border-[10px] border-slate-100" />
 
-                    <div className="w-full h-full rounded-full border-[10px] border-white/15 flex items-center justify-center">
-                      <div className="text-center">
-                        <p className="text-3xl font-bold">82</p>
-                        <p className="text-[10px] text-white/60">
-                          / 100
-                        </p>
-                      </div>
+                  <div className="absolute inset-0 rounded-full border-[10px] border-violet-600 border-r-transparent border-b-transparent -rotate-45" />
+
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-slate-900">
+                        82
+                      </p>
+
+                      <p className="text-[9px] text-slate-400 uppercase tracking-wider">
+                        / 100
+                      </p>
                     </div>
-
                   </div>
-
-                  <div>
-                    <p className="text-sm font-semibold">
-                      Strong profile 🚀
-                    </p>
-
-                    <p className="mt-1 text-xs leading-5 text-white/65 max-w-sm">
-                      Your profile is performing better than 74% of candidates
-                      applying for similar roles.
-                    </p>
-
-                    <button className="mt-4 px-4 py-2 rounded-lg bg-white text-violet-700 text-xs font-semibold hover:bg-white/90 transition">
-                      Improve my score
-                    </button>
-                  </div>
-
                 </div>
 
+                <div className="flex-1">
+                  <p className="text-sm text-slate-600 leading-6">
+                    Your profile is performing well. Complete
+                    your resume and technical assessments to
+                    improve your score.
+                  </p>
+
+                  <button
+                    type="button"
+                    className="mt-4 flex items-center gap-1.5 text-xs font-semibold text-violet-600 hover:text-violet-700"
+                  >
+                    Improve score
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Resume */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+            {/* RESUME */}
 
+            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
-                <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <FileText size={20} />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <FileText
+                      size={17}
+                      className="text-blue-600"
+                    />
+
+                    <h3 className="font-bold text-slate-900">
+                      Resume Strength
+                    </h3>
+                  </div>
+
+                  <p className="text-xs text-slate-400 mt-1">
+                    AI analysis of your resume
+                  </p>
                 </div>
 
-                <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-                  Analyzed
-                </span>
-              </div>
-
-              <h3 className="mt-5 font-semibold">
-                Resume strength
-              </h3>
-
-              <div className="mt-3 h-2 bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full w-[88%] bg-gradient-to-r from-violet-500 to-blue-500 rounded-full" />
-              </div>
-
-              <div className="mt-2 flex justify-between text-xs">
-                <span className="text-slate-400">
-                  AI score
-                </span>
-
-                <span className="font-semibold text-slate-700">
+                <span className="text-2xl font-bold text-slate-900">
                   88%
                 </span>
               </div>
 
-              <button className="mt-5 w-full py-2.5 rounded-xl border border-slate-200 text-sm font-medium hover:bg-slate-50 transition">
-                View resume analysis
-              </button>
+              <div className="mt-6">
+                <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+                  <div className="h-full w-[88%] rounded-full bg-gradient-to-r from-violet-500 to-blue-500" />
+                </div>
 
-            </div>
+                <div className="flex items-center justify-between mt-3">
+                  <p className="text-xs text-slate-400">
+                    Good progress
+                  </p>
 
-          </div>
+                  <p className="text-xs font-semibold text-violet-600">
+                    12% to improve
+                  </p>
+                </div>
+              </div>
 
-          {/* Jobs + Applications */}
-          <div className="grid xl:grid-cols-3 gap-5">
+              <div className="grid grid-cols-3 gap-3 mt-6">
+                <div className="rounded-xl bg-slate-50 p-3">
+                  <p className="text-xs text-slate-400">
+                    Skills
+                  </p>
 
-            {/* Jobs */}
-            <div className="xl:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
-
-              <div className="flex items-center justify-between mb-5">
-
-                <div>
-                  <h2 className="font-semibold text-lg">
-                    Recommended for you
-                  </h2>
-
-                  <p className="text-xs text-slate-400 mt-1">
-                    AI-powered job matches
+                  <p className="text-sm font-bold text-slate-900 mt-1">
+                    Strong
                   </p>
                 </div>
 
-                <button className="text-xs font-semibold text-violet-600 flex items-center gap-1 hover:text-violet-700">
-                  View all
-                  <ChevronRight size={14} />
-                </button>
+                <div className="rounded-xl bg-slate-50 p-3">
+                  <p className="text-xs text-slate-400">
+                    Experience
+                  </p>
 
-              </div>
+                  <p className="text-sm font-bold text-slate-900 mt-1">
+                    Good
+                  </p>
+                </div>
 
-              <div className="space-y-3">
+                <div className="rounded-xl bg-slate-50 p-3">
+                  <p className="text-xs text-slate-400">
+                    Projects
+                  </p>
 
-                {jobs.map((job) => (
-                  <div
-                    key={job.title}
-                    className="group border border-slate-100 rounded-2xl p-4 hover:border-violet-200 hover:shadow-sm transition"
-                  >
-
-                    <div className="flex items-center gap-4">
-
-                      <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-50 to-blue-50 text-violet-600 flex items-center justify-center font-bold">
-                        {job.company.charAt(0)}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-
-                        <h3 className="font-semibold text-sm truncate">
-                          {job.title}
-                        </h3>
-
-                        <p className="text-xs text-slate-400 mt-1">
-                          {job.company} • {job.location}
-                        </p>
-
-                        <p className="text-xs text-slate-500 mt-1">
-                          {job.salary}
-                        </p>
-
-                      </div>
-
-                      <div className="hidden sm:block text-right">
-
-                        <div className="text-lg font-bold text-violet-600">
-                          {job.match}%
-                        </div>
-
-                        <p className="text-[10px] text-slate-400">
-                          AI match
-                        </p>
-
-                      </div>
-
-                      <button className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-violet-50 group-hover:text-violet-600 transition">
-                        <ChevronRight size={17} />
-                      </button>
-
-                    </div>
-
-                  </div>
-                ))}
-
+                  <p className="text-sm font-bold text-slate-900 mt-1">
+                    Strong
+                  </p>
+                </div>
               </div>
             </div>
+          </section>
 
-            {/* Activity */}
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+          {/* =========================================
+              RECOMMENDED JOBS
+          ========================================== */}
 
-              <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-lg">
+          <section className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">
+                  Recommended Jobs
+                </h2>
+
+                <p className="text-xs text-slate-400 mt-1">
+                  AI matched opportunities for you
+                </p>
+              </div>
+
+              <button
+                type="button"
+                className="text-xs font-semibold text-violet-600 flex items-center gap-1 hover:text-violet-700"
+              >
+                View all
+                <ChevronRight size={14} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {recommendedJobs.map((job) => (
+                <div
+                  key={job.title}
+                  className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-semibold text-violet-600">
+                        {job.company}
+                      </p>
+
+                      <h3 className="font-bold text-slate-900 mt-1">
+                        {job.title}
+                      </h3>
+                    </div>
+
+                    <span className="shrink-0 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-full">
+                      {job.match} match
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 mt-5 text-xs text-slate-400">
+                    <span>{job.type}</span>
+
+                    <span>•</span>
+
+                    <span>{job.location}</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="w-full mt-5 h-10 rounded-xl bg-slate-50 text-slate-700 text-xs font-semibold hover:bg-violet-50 hover:text-violet-700 transition"
+                  >
+                    View Job
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* =========================================
+              UPCOMING
+          ========================================== */}
+
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-bold text-slate-900">
                   Upcoming
                 </h2>
 
-                <span className="text-xs text-slate-400">
-                  This week
-                </span>
+                <p className="text-xs text-slate-400 mt-1">
+                  Your next career activities
+                </p>
               </div>
-
-              <div className="mt-5 space-y-5">
-
-                <div className="flex gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
-                    <Mic2 size={16} />
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium">
-                      AI Technical Interview
-                    </p>
-
-                    <p className="text-xs text-slate-400 mt-1">
-                      Tomorrow • 10:30 AM
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                    <FileText size={16} />
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium">
-                      Technical Assessment
-                    </p>
-
-                    <p className="text-xs text-slate-400 mt-1">
-                      Wednesday • React.js
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                    <BriefcaseBusiness size={16} />
-                  </div>
-
-                  <div>
-                    <p className="text-sm font-medium">
-                      Application Update
-                    </p>
-
-                    <p className="text-xs text-slate-400 mt-1">
-                      TechNova • Under review
-                    </p>
-                  </div>
-                </div>
-
-              </div>
-
-              <button className="mt-6 w-full py-2.5 rounded-xl bg-slate-50 text-sm font-medium hover:bg-slate-100 transition">
-                View activity
-              </button>
-
             </div>
 
-          </div>
+            <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+              {upcomingItems.map((item, index) => {
+                const Icon = item.icon;
 
+                return (
+                  <div
+                    key={item.title}
+                    className={`p-5 flex items-center gap-4 ${
+                      index !== upcomingItems.length - 1
+                        ? "border-b border-slate-100"
+                        : ""
+                    }`}
+                  >
+                    <div className="w-11 h-11 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+                      <Icon size={18} />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-semibold text-slate-900">
+                        {item.title}
+                      </h3>
+
+                      <p className="text-xs text-slate-400 mt-1">
+                        {item.company}
+                      </p>
+                    </div>
+
+                    <div className="hidden sm:flex items-center gap-4 text-xs text-slate-400">
+                      <div className="flex items-center gap-1.5">
+                        <CalendarDays size={14} />
+                        {item.date}
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <Clock3 size={14} />
+                        {item.time}
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="w-9 h-9 rounded-xl hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-700 transition"
+                    >
+                      <ChevronRight size={17} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
         </div>
       </main>
+
+      {/* =====================================================
+          PROFILE MODAL
+          IMPORTANT:
+          This is OUTSIDE the Sidebar.
+      ====================================================== */}
+
+      <ProfileModal
+        isOpen={profileModalOpen}
+        onClose={() => setProfileModalOpen(false)}
+        user={user}
+        onSave={handleProfileUpdate}
+        onChangePassword={() => {
+          setProfileModalOpen(false);
+          setChangePasswordModalOpen(true);
+        }}
+        role="candidate"
+      />
+
+      {/* =====================================================
+          CHANGE PASSWORD MODAL
+          IMPORTANT:
+          This is also OUTSIDE the Sidebar.
+      ====================================================== */}
+
+      <ChangePasswordModal
+        isOpen={changePasswordModalOpen}
+        onClose={() =>
+          setChangePasswordModalOpen(false)
+        }
+        onSave={handleChangePassword}
+      />
     </div>
   );
 };
