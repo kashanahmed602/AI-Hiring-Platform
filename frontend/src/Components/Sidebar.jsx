@@ -13,7 +13,7 @@ import {
   Pencil,
 } from "lucide-react";
 
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from 'react'
 import axios from "axios";
 
@@ -41,6 +41,7 @@ const Sidebar = ({
 
   },[])
   const navigate = useNavigate();
+  const location = useLocation();
 
   const isCandidate = role === "candidate";
 
@@ -119,7 +120,7 @@ const Sidebar = ({
     {
       icon: BriefcaseBusiness,
       label: "Jobs",
-      path: "/recruiter/jobs",
+      path: "/jobs",
     },
     {
       icon: FileText,
@@ -144,9 +145,10 @@ const Sidebar = ({
     },
   ];
 
-  const menuItems = isCandidate
-    ? candidateMenu
-    : recruiterMenu;
+  const menuItems = (isCandidate ? candidateMenu : recruiterMenu).map((item) => ({
+    ...item,
+    active: item.path === location.pathname,
+  }));
 
   // =========================
   // NAVIGATION

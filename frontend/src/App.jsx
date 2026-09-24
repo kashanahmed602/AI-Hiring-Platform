@@ -8,6 +8,7 @@ import RecruiterSignup from './Auth/Recruiter/signupRecruiter'
 import ProtectedRoutes from './Auth/auth'
 import RecruiterDashboard from './Dashboard/Recruiter'
 import CandidateDashboard from './Dashboard/Candidate'
+import JobCreation from './Pages/JobCreaton'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Route path='/recruiter/signup' element={<RecruiterSignup/>} />
       <Route path='/recruiter/dashboard' element={<ProtectedRoutes><RecruiterDashboard/></ProtectedRoutes>} />
       <Route path='/candidate/dashboard' element={<ProtectedRoutes><CandidateDashboard/></ProtectedRoutes>} />
+      <Route path='/jobs' element={<ProtectedRoutes><JobCreation/></ProtectedRoutes>} />
     </Routes>
   )
 }
