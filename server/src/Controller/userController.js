@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const cookie = require('cookie-parser');
 const imagekit = require('../config/imageKit');
+const extractResumeText = require('../Utils/ResumeTextExtraction');
 
 const userRegister = async (req, res) => {
     try{
@@ -235,6 +236,10 @@ const resumeUpload = async (req, res) => {
                 message: "User Not Found"
             }); 
         }
+
+        // Extract text from resume
+        const resumeText = await extractResumeText(file);
+        console.log("Extracted Resume Text:", resumeText);
 
         const upload = await imagekit.upload({
             file: file.buffer,
