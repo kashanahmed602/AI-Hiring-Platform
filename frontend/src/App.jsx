@@ -10,6 +10,7 @@ import RecruiterDashboard from './Dashboard/Recruiter'
 import CandidateDashboard from './Dashboard/Candidate'
 import JobCreation from './Pages/JobCreaton'
 import CandidateJobs from './Pages/CanddateJob'
+import MyResume from './Pages/MyResume'
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
       <Route path='/candidate/dashboard' element={<ProtectedRoutes><CandidateDashboard/></ProtectedRoutes>} />
       <Route path='/candidate/jobs' element={<ProtectedRoutes><CandidateJobs/></ProtectedRoutes>} />
       <Route path='/jobs' element={<ProtectedRoutes><JobCreation/></ProtectedRoutes>} />
+      <Route path='/candidate/resume' element={<ProtectedRoutes><MyResume/></ProtectedRoutes>} />
     </Routes>
   )
 }
