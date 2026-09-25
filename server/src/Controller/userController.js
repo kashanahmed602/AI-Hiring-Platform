@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const cookie = require('cookie-parser');
+const imagekit = require('../config/imageKit');
 
 const userRegister = async (req, res) => {
     try{
@@ -216,4 +217,54 @@ const updatePassword = async (req, res) => {
     }
 }
 
-module.exports = { userRegister, userLogin, getUserProfile, updateUserProfile, updatePassword };
+const resumeUpload = async (req, res) => {
+    try {
+        const file = req.file;
+        if(!file){
+            return res.status(400).json({
+                success: false,
+                message: "No file uploaded"
+            });
+        }
+
+        const user = await Candidate.findById(req.user.id);
+
+        if(!user || user.role !== "candidate"){
+            return res.status(404).json({
+                success: false,
+                message: "User Not Found"
+            }); 
+        }
+
+        const upload = await imagekit.upload({
+            file: file.buffer,
+            fileName: file.originalname,
+            folder: '/hireFlows/resumes'
+        });
+
+        user.resume = {
+            fileName: req.file.originalname,
+            fileUrl: upload.url,
+            fileId: upload.fileId,
+            uploadedAt: new Date()
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Resume Uploaded Successfully",
+            resume: user.resume
+        })
+
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+        console.log("error", error.message);
+
+    }
+}
+
+module.exports = { userRegister, userLogin, getUserProfile, updateUserProfile, updatePassword, resumeUpload };

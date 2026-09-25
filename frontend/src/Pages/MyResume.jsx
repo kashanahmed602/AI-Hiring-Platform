@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
+import axios from 'axios';
 
 import { useRef, useState } from "react";
 
@@ -82,6 +83,43 @@ const ResumeUpload = () => {
 
   };
 
+ const uploadResume = async () => {
+  try {
+    const formData = new FormData();
+
+    formData.append("resume", selectedFile);
+
+    const resume = await axios.post(
+      "http://localhost:3001/api/v1/candidate/resumeUpload",
+      formData,
+      {
+        withCredentials: true,
+      }
+    );
+
+    console.log("Upload Response:", resume.data);
+
+    alert("Resume Uploaded Successfully");
+
+    setSelectedFile(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
+  } catch (error) {
+    console.log(
+      "Resume Upload Error:",
+      error.response?.data || error.message
+    );
+
+    alert(
+      error.response?.data?.message ||
+      "Resume upload failed"
+    );
+  }
+};
+
 
   // ======================================================
   // UPLOAD BUTTON
@@ -96,13 +134,15 @@ const ResumeUpload = () => {
 
     }
 
+    uploadResume();
 
-    // Abhi sirf testing ke liye
-    console.log("Selected Resume:", selectedFile);
 
-    alert(
-      "Resume selected successfully. Backend upload will be added next."
-    );
+    // // Abhi sirf testing ke liye
+    // console.log("Selected Resume:", selectedFile);
+
+    // alert(
+    //   "Resume selected successfully. Backend upload will be added next."
+    // );
 
   };
 

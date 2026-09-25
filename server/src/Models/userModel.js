@@ -27,7 +27,14 @@ const userModel = new mongoose.Schema({
         type: String,
         anum:["candidate", "recruiter"],
         default: "candidate"
-    }
+    },
+
+    resume: {
+        fileName: String,
+        fileUrl: String,
+        fileId: String,
+        uploadedAt: Date,
+},
 
 },
     {
