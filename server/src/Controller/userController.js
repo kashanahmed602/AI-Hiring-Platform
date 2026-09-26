@@ -5,6 +5,7 @@ require('dotenv').config();
 const cookie = require('cookie-parser');
 const imagekit = require('../config/imageKit');
 const extractResumeText = require('../Utils/ResumeTextExtraction');
+const parseResumeWithAI = require('../Utils/ParseResumeWithAI');
 
 const userRegister = async (req, res) => {
     try{
@@ -239,7 +240,23 @@ const resumeUpload = async (req, res) => {
 
         // Extract text from resume
         const resumeText = await extractResumeText(file);
+
+        if(!resumeText || resumeText.trim() === ""){
+            return res.status(400).json({
+                success: false,
+                message: "Failed to extract text from resume"
+            });
+        }
         console.log("Extracted Resume Text:", resumeText);
+
+        const parsedData = await parseResumeWithAI(resumeText);
+
+        if(!parsedData){
+            return res.status(400).json({
+                success: false,
+                message: "Failed to parse resume data"
+            });
+        }
 
         const upload = await imagekit.upload({
             file: file.buffer,
@@ -251,7 +268,12 @@ const resumeUpload = async (req, res) => {
             fileName: req.file.originalname,
             fileUrl: upload.url,
             fileId: upload.fileId,
-            uploadedAt: new Date()
+            uploadedAt: new Date(),
+            parsingStatus: "completed",
+            parsedDate: new Date(),
+            parsedVerson: '1.0',
+            extractedText: resumeText,
+            parsedData: parsedData
         }
 
         await user.save();
@@ -265,7 +287,7 @@ const resumeUpload = async (req, res) => {
     }catch(error){
         res.status(500).json({
             success: false,
-            message: "Internal Server Error"
+            message: error.message
         })
         console.log("error", error.message);
 
