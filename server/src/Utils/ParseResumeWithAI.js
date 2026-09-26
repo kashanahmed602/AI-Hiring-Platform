@@ -222,22 +222,24 @@ LANGUAGE RULES:
 - Only include proficiency when explicitly mentioned.
 
 
-LINK RULES:
+LINK EXTRACTION RULES:
 
-- Extract professional links explicitly present in the resume.
-- Identify links such as:
-  GitHub
-  LinkedIn
-  Portfolio
-  Personal Website
-  Behance
-  Dribbble
-  etc.
-
-- If an actual URL is present, return the actual URL.
-- Do not create or guess URLs.
-- If only "GitHub", "LinkedIn", "Portfolio", etc. appears without an actual URL, return url as null.
-- Do not convert a username into a fake URL.
+- Extract every actual URL that appears anywhere in the resume.
+- Do not return null if a real URL is present in the resume text.
+- Look for URLs in the header, contact information, social profiles,
+  projects, portfolio section, or any other section.
+- Recognize GitHub, LinkedIn, portfolio/personal website, and project URLs.
+- Preserve the complete URL exactly as it appears.
+- Never invent, modify, or guess a URL.
+- If a URL appears without "https://", such as github.com/username,
+  normalize it by adding "https://" only if the destination is clearly
+  identifiable as a URL.
+- For GitHub use type "GitHub".
+- For LinkedIn use type "LinkedIn".
+- For portfolio/personal website use type "Portfolio".
+- For project-specific URLs use the project.url field instead of
+  professional links when the URL clearly belongs to a specific project.
+- If no URL exists, return [].
 
 
 GENERAL RULES:

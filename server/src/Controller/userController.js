@@ -222,7 +222,8 @@ const updatePassword = async (req, res) => {
 const resumeUpload = async (req, res) => {
     try {
         const file = req.file;
-        if(!file){
+
+        if (!file) {
             return res.status(400).json({
                 success: false,
                 message: "No file uploaded"
@@ -231,67 +232,104 @@ const resumeUpload = async (req, res) => {
 
         const user = await Candidate.findById(req.user.id);
 
-        if(!user || user.role !== "candidate"){
+        if (!user || user.role !== "candidate") {
             return res.status(404).json({
                 success: false,
                 message: "User Not Found"
-            }); 
+            });
         }
 
-        // Extract text from resume
+        // --------------------------------
+        // 1. Extract text from new resume
+        // --------------------------------
         const resumeText = await extractResumeText(file);
 
-        if(!resumeText || resumeText.trim() === ""){
+        if (!resumeText || resumeText.trim() === "") {
             return res.status(400).json({
                 success: false,
                 message: "Failed to extract text from resume"
             });
         }
+
         console.log("Extracted Resume Text:", resumeText);
 
+        // --------------------------------
+        // 2. Parse new resume with AI
+        // --------------------------------
         const parsedData = await parseResumeWithAI(resumeText);
 
-        if(!parsedData){
+        if (!parsedData) {
             return res.status(400).json({
                 success: false,
                 message: "Failed to parse resume data"
             });
         }
 
+        // --------------------------------
+        // 3. Upload NEW resume
+        // --------------------------------
         const upload = await imagekit.upload({
             file: file.buffer,
             fileName: file.originalname,
-            folder: '/hireFlows/resumes'
+            folder: "/hireFlows/resumes"
         });
 
+        // --------------------------------
+        // 4. Save old fileId before replacing
+        // --------------------------------
+        const oldFileId = user.resume?.fileId;
+
+        // --------------------------------
+        // 5. Replace resume data
+        // --------------------------------
         user.resume = {
-            fileName: req.file.originalname,
+            fileName: file.originalname,
             fileUrl: upload.url,
             fileId: upload.fileId,
             uploadedAt: new Date(),
             parsingStatus: "completed",
             parsedDate: new Date(),
-            parsedVerson: '1.0',
+            parsedVerson: "1.0",
             extractedText: resumeText,
             parsedData: parsedData
-        }
+        };
 
         await user.save();
 
+        // --------------------------------
+        // 6. Delete OLD resume
+        // --------------------------------
+        if (oldFileId) {
+            try {
+                await imagekit.deleteFile(oldFileId);
+
+                console.log("Old resume deleted:", oldFileId);
+            } catch (deleteError) {
+                console.log(
+                    "Old resume deletion failed:",
+                    deleteError.message
+                );
+            }
+        }
+
+        // --------------------------------
+        // 7. Response
+        // --------------------------------
         res.status(200).json({
             success: true,
             message: "Resume Uploaded Successfully",
             resume: user.resume
-        })
+        });
 
-    }catch(error){
+    } catch (error) {
+
+        console.log("error", error.message);
+
         res.status(500).json({
             success: false,
             message: error.message
-        })
-        console.log("error", error.message);
-
+        });
     }
-}
+};
 
 module.exports = { userRegister, userLogin, getUserProfile, updateUserProfile, updatePassword, resumeUpload };
