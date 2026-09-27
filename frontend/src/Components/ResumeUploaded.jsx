@@ -12,36 +12,38 @@ import {
   Award,
   Languages,
   Link as LinkIcon,
+  UserRound,
+  CalendarDays,
 } from "lucide-react";
-import UploadResume from './UploadResume'; 
-import { useState } from 'react';
+
+import { useState } from "react";
+import UploadResume from "./UploadResume";
 
 const ResumeUploaded = ({ data }) => {
-
   const [uploadAgain, setUploadAgain] = useState(false);
 
   const resume = data?.resume;
   const parsedData = resume?.parsedData;
 
-  const personal = parsedData?.personal;
-  const professional = parsedData?.professional;
+  // --------------------------------
+  // Upload Again
+  // --------------------------------
+  const handleUploadAgain = () => {
+    setUploadAgain(true);
+  };
 
-  const skills = parsedData?.skills || [];
-  const experience = parsedData?.experience || [];
-  const education = parsedData?.education || [];
-  const projects = parsedData?.projects || [];
-  const certifications = parsedData?.certifications || [];
-  const languages = parsedData?.languages || [];
-  const links = parsedData?.links || [];
-
-  // View original resume
+  // --------------------------------
+  // View Resume
+  // --------------------------------
   const handleViewResume = () => {
     if (!resume?.fileUrl) return;
 
     window.open(resume.fileUrl, "_blank", "noopener,noreferrer");
   };
 
-  // Download original resume
+  // --------------------------------
+  // Download Resume
+  // --------------------------------
   const handleDownloadResume = () => {
     if (!resume?.fileUrl) return;
 
@@ -56,600 +58,781 @@ const ResumeUploaded = ({ data }) => {
     document.body.removeChild(link);
   };
 
-  // UI only for now
-  const handleUploadAgain = () => {
-    console.log("Upload again clicked");
+  // --------------------------------
+  // Delete Resume
+  // --------------------------------
+  const handleDeleteResume = () => {
+    console.log("Delete resume clicked");
 
-    setUploadAgain(true);
-
+    // Backend delete API yahan add hoga
   };
 
-  if(uploadAgain) {
-    return <UploadResume/>
+  // --------------------------------
+  // Upload Again Screen
+  // --------------------------------
+  if (uploadAgain) {
+    return <UploadResume />;
   }
 
+  // --------------------------------
+  // Helpers
+  // --------------------------------
+  const formatArray = (items) => {
+    if (!Array.isArray(items)) return [];
+
+    return items.filter(Boolean);
+  };
+
+  const skills = formatArray(parsedData?.skills);
+  const experience = formatArray(parsedData?.experience);
+  const education = formatArray(parsedData?.education);
+  const projects = formatArray(parsedData?.projects);
+  const certifications = formatArray(parsedData?.certifications);
+  const languages = formatArray(parsedData?.languages);
+  const links = formatArray(parsedData?.links);
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8 md:px-8">
-      <div className="mx-auto max-w-6xl">
+    <div className="min-h-screen bg-slate-50 py-8">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
 
-        {/* Header */}
-        <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+        {/* =========================================
+            PAGE HEADER
+        ========================================== */}
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              My Resume
-            </h1>
+            {/* Left */}
+            <div className="flex items-start gap-4">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
+                <UserRound size={26} />
+              </div>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Your resume has been uploaded and analyzed successfully.
-            </p>
-            <p className="mt-1 text-xs font-light text-red-500">
-              If you replace your resume, the old one will be deleted and replaced with the new one.
-            </p>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">
+                  My Resume
+                </h1>
 
-            {resume?.fileName && (
-              <p className="mt-3 text-sm font-medium text-slate-700">
-                {resume.fileName}
-              </p>
-            )}
-          </div>
+                <p className="mt-1 text-sm text-slate-500">
+                  Manage your resume and professional information
+                </p>
+                <p className="mt-1 text-xs text-red-500">
+                  If you want to update your resume, the old resume will be replaced from the new one. 
+                </p>
 
-          {/* Actions */}
-          <div className="flex flex-wrap gap-2">
+                {resume?.fileName && (
+                  <p className="mt-2 text-xs text-slate-400">
+                    {resume.fileName}
+                  </p>
+                )}
+              </div>
+            </div>
 
-            <button
-              onClick={handleViewResume}
-              className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-            >
-              <ExternalLink size={17} />
-              View Resume
-            </button>
+            {/* Actions */}
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={handleViewResume}
+                disabled={!resume?.fileUrl}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <ExternalLink size={17} />
+                View Resume
+              </button>
 
-            <button
-              onClick={handleDownloadResume}
-              className="flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-violet-700"
-            >
-              <Download size={17} />
-              Download
-            </button>
+              <button
+                onClick={handleDownloadResume}
+                disabled={!resume?.fileUrl}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <Download size={17} />
+                Download
+              </button>
 
-            <button
-              onClick={handleUploadAgain}
-              className="flex items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-medium text-violet-700 transition hover:bg-violet-100"
-            >
-              <Upload size={17} />
-              Upload Again
-            </button>
-
-            {/* <button
-              onClick={handleDeleteResume}
-              className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-100"
-            >
-              <Trash2 size={17} />
-              Delete
-            </button> */}
-
+              <button
+                onClick={handleUploadAgain}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-violet-700"
+              >
+                <Upload size={17} />
+                Upload Again
+              </button>
+            </div>
           </div>
         </div>
 
+        {/* =========================================
+            APPLICATION INFO
+        ========================================== */}
+        <div className="mb-6 rounded-2xl border border-violet-200 bg-violet-50 p-5">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+              <Briefcase size={18} />
+            </div>
 
-        {/* Personal + Professional */}
-        <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div>
+              <h2 className="text-sm font-semibold text-violet-900">
+                Your resume information will be used for job applications
+              </h2>
 
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-slate-900">
-              {personal?.fullName || "Candidate"}
-            </h2>
-
-            {professional?.headline && (
-              <p className="mt-2 text-base font-medium text-violet-600">
-                {professional.headline}
-              </p>
-            )}
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
-            {personal?.email && (
-              <div className="flex items-start gap-3">
-                <Mail
-                  size={18}
-                  className="mt-0.5 shrink-0 text-violet-600"
-                />
-
-                <div>
-                  <p className="text-xs text-slate-500">
-                    Email
-                  </p>
-
-                  <p className="mt-1 break-all text-sm font-medium text-slate-800">
-                    {personal.email}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {personal?.phone && (
-              <div className="flex items-start gap-3">
-                <Phone
-                  size={18}
-                  className="mt-0.5 shrink-0 text-violet-600"
-                />
-
-                <div>
-                  <p className="text-xs text-slate-500">
-                    Phone
-                  </p>
-
-                  <p className="mt-1 text-sm font-medium text-slate-800">
-                    {personal.phone}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {personal?.location && (
-              <div className="flex items-start gap-3">
-                <MapPin
-                  size={18}
-                  className="mt-0.5 shrink-0 text-violet-600"
-                />
-
-                <div>
-                  <p className="text-xs text-slate-500">
-                    Location
-                  </p>
-
-                  <p className="mt-1 text-sm font-medium text-slate-800">
-                    {personal.location}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {professional?.currentRole && (
-              <div className="flex items-start gap-3">
-                <Briefcase
-                  size={18}
-                  className="mt-0.5 shrink-0 text-violet-600"
-                />
-
-                <div>
-                  <p className="text-xs text-slate-500">
-                    Current Role
-                  </p>
-
-                  <p className="mt-1 text-sm font-medium text-slate-800">
-                    {professional.currentRole}
-                  </p>
-                </div>
-              </div>
-            )}
-
-          </div>
-
-          {professional?.yearsOfExperience && (
-            <div className="mt-6 rounded-xl bg-violet-50 px-4 py-3">
-              <p className="text-sm text-violet-700">
-                <span className="font-semibold">
-                  Experience:
-                </span>{" "}
-                {professional.yearsOfExperience}
+              <p className="mt-1 text-sm leading-6 text-violet-700">
+                The professional information extracted from your resume will
+                be used when you apply for jobs. Make sure your resume
+                information is accurate and up to date.
               </p>
             </div>
-          )}
-
-        </section>
-
-
-        {/* Summary */}
-        {parsedData?.summary && (
-          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-
-            <h2 className="mb-4 text-lg font-bold text-slate-900">
-              Professional Summary
-            </h2>
-
-            <p className="leading-7 text-slate-600">
-              {parsedData.summary}
-            </p>
-
-          </section>
-        )}
-
-
-        {/* Skills */}
-        {skills.length > 0 && (
-          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-
-            <h2 className="mb-4 text-lg font-bold text-slate-900">
-              Skills
-            </h2>
-
-            <div className="flex flex-wrap gap-2">
-
-              {skills.map((skill, index) => (
-                <span
-                  key={index}
-                  className="rounded-full bg-violet-50 px-3 py-1.5 text-sm font-medium text-violet-700"
-                >
-                  {skill}
-                </span>
-              ))}
-
-            </div>
-
-          </section>
-        )}
-
-
-        {/* Experience */}
-        {experience.length > 0 && (
-          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-
-            <div className="mb-6 flex items-center gap-2">
-              <Briefcase size={20} className="text-violet-600" />
-
-              <h2 className="text-lg font-bold text-slate-900">
-                Experience
-              </h2>
-            </div>
-
-            <div className="space-y-8">
-
-              {experience.map((item, index) => (
-                <div
-                  key={index}
-                  className="border-l-2 border-violet-200 pl-5"
-                >
-
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    {item.role || "Role not specified"}
-                  </h3>
-
-                  {item.company && (
-                    <p className="mt-1 font-medium text-violet-600">
-                      {item.company}
-                    </p>
-                  )}
-
-                  {(item.startDate || item.endDate) && (
-                    <p className="mt-1 text-sm text-slate-500">
-                      {item.startDate || ""}
-                      {" - "}
-                      {item.isCurrent
-                        ? "Present"
-                        : item.endDate || ""}
-                    </p>
-                  )}
-
-                  {item.employmentType && (
-                    <p className="mt-1 text-sm text-slate-500">
-                      {item.employmentType}
-                    </p>
-                  )}
-
-                  {item.location && (
-                    <p className="mt-1 text-sm text-slate-500">
-                      {item.location}
-                    </p>
-                  )}
-
-                  {item.description && (
-                    <p className="mt-4 leading-7 text-slate-600">
-                      {item.description}
-                    </p>
-                  )}
-
-                  {item.responsibilities?.length > 0 && (
-                    <ul className="mt-4 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-600">
-                      {item.responsibilities.map(
-                        (responsibility, responsibilityIndex) => (
-                          <li key={responsibilityIndex}>
-                            {responsibility}
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  )}
-
-                  {item.technologies?.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-
-                      {item.technologies.map(
-                        (technology, technologyIndex) => (
-                          <span
-                            key={technologyIndex}
-                            className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
-                          >
-                            {technology}
-                          </span>
-                        )
-                      )}
-
-                    </div>
-                  )}
-
-                </div>
-              ))}
-
-            </div>
-
-          </section>
-        )}
-
-
-        {/* Education */}
-        {education.length > 0 && (
-          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-
-            <div className="mb-6 flex items-center gap-2">
-              <GraduationCap
-                size={20}
-                className="text-violet-600"
-              />
-
-              <h2 className="text-lg font-bold text-slate-900">
-                Education
-              </h2>
-            </div>
-
-            <div className="space-y-5">
-
-              {education.map((item, index) => (
-                <div
-                  key={index}
-                  className="rounded-xl border border-slate-100 bg-slate-50 p-5"
-                >
-
-                  <h3 className="font-semibold text-slate-900">
-                    {item.degree || "Degree not specified"}
-                  </h3>
-
-                  {item.fieldOfStudy && (
-                    <p className="mt-1 text-sm text-violet-600">
-                      {item.fieldOfStudy}
-                    </p>
-                  )}
-
-                  {item.institution && (
-                    <p className="mt-2 text-sm font-medium text-slate-700">
-                      {item.institution}
-                    </p>
-                  )}
-
-                  {(item.startDate || item.endDate) && (
-                    <p className="mt-1 text-sm text-slate-500">
-                      {item.startDate || ""}
-                      {" - "}
-                      {item.isCurrent
-                        ? "Present"
-                        : item.endDate || ""}
-                    </p>
-                  )}
-
-                  {item.location && (
-                    <p className="mt-1 text-sm text-slate-500">
-                      {item.location}
-                    </p>
-                  )}
-
-                </div>
-              ))}
-
-            </div>
-
-          </section>
-        )}
-
-
-        {/* Projects */}
-        {projects.length > 0 && (
-          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-
-            <div className="mb-6 flex items-center gap-2">
-              <FolderGit2
-                size={20}
-                className="text-violet-600"
-              />
-
-              <h2 className="text-lg font-bold text-slate-900">
-                Projects
-              </h2>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-
-              {projects.map((project, index) => (
-                <div
-                  key={index}
-                  className="rounded-xl border border-slate-200 p-5"
-                >
-
-                  <h3 className="font-semibold text-slate-900">
-                    {project.name || "Untitled Project"}
-                  </h3>
-
-                  {project.description && (
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {project.description}
-                    </p>
-                  )}
-
-                  {project.technologies?.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-
-                      {project.technologies.map(
-                        (technology, technologyIndex) => (
-                          <span
-                            key={technologyIndex}
-                            className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
-                          >
-                            {technology}
-                          </span>
-                        )
-                      )}
-
-                    </div>
-                  )}
-
-                  {project.url && (
-                    <a
-                      href={project.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-violet-600 hover:text-violet-700"
-                    >
-                      <ExternalLink size={15} />
-                      View Project
-                    </a>
-                  )}
-
-                </div>
-              ))}
-
-            </div>
-
-          </section>
-        )}
-
-
-        {/* Certifications */}
-        {certifications.length > 0 && (
-          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-
-            <div className="mb-6 flex items-center gap-2">
-              <Award size={20} className="text-violet-600" />
-
-              <h2 className="text-lg font-bold text-slate-900">
-                Certifications
-              </h2>
+          </div>
+        </div>
+
+        {/* =========================================
+            PERSONAL + PROFESSIONAL
+        ========================================== */}
+        <div className="mb-6 grid gap-6 lg:grid-cols-2">
+
+          {/* Personal Information */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+                <UserRound size={19} />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Personal Information
+                </h2>
+
+                <p className="text-xs text-slate-500">
+                  Information extracted from your resume
+                </p>
+              </div>
             </div>
 
             <div className="space-y-4">
 
-              {certifications.map((item, index) => (
-                <div
-                  key={index}
-                  className="rounded-xl border border-slate-100 bg-slate-50 p-4"
-                >
+              {/* Name */}
+              <div>
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Full Name
+                </p>
 
-                  <h3 className="font-semibold text-slate-900">
-                    {item.name || "Certification"}
-                  </h3>
+                <p className="text-sm font-medium text-slate-800">
+                  {parsedData?.personal?.fullName || "Not available"}
+                </p>
+              </div>
 
-                  {item.issuer && (
-                    <p className="mt-1 text-sm text-violet-600">
-                      {item.issuer}
-                    </p>
-                  )}
+              {/* Email */}
+              <div className="flex items-start gap-3">
+                <Mail
+                  size={17}
+                  className="mt-0.5 shrink-0 text-slate-400"
+                />
 
-                  {item.issueDate && (
-                    <p className="mt-1 text-sm text-slate-500">
-                      Issued: {item.issueDate}
-                    </p>
-                  )}
+                <div>
+                  <p className="text-xs text-slate-400">
+                    Email
+                  </p>
 
-                  {item.expiryDate && (
-                    <p className="mt-1 text-sm text-slate-500">
-                      Expires: {item.expiryDate}
-                    </p>
-                  )}
-
-                  {item.credentialUrl && (
-                    <a
-                      href={item.credentialUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-violet-600"
-                    >
-                      <ExternalLink size={15} />
-                      View Credential
-                    </a>
-                  )}
-
+                  <p className="mt-0.5 break-all text-sm text-slate-700">
+                    {parsedData?.personal?.email || "Not available"}
+                  </p>
                 </div>
-              ))}
+              </div>
+
+              {/* Phone */}
+              <div className="flex items-start gap-3">
+                <Phone
+                  size={17}
+                  className="mt-0.5 shrink-0 text-slate-400"
+                />
+
+                <div>
+                  <p className="text-xs text-slate-400">
+                    Phone
+                  </p>
+
+                  <p className="mt-0.5 text-sm text-slate-700">
+                    {parsedData?.personal?.phone || "Not available"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Location */}
+              <div className="flex items-start gap-3">
+                <MapPin
+                  size={17}
+                  className="mt-0.5 shrink-0 text-slate-400"
+                />
+
+                <div>
+                  <p className="text-xs text-slate-400">
+                    Location
+                  </p>
+
+                  <p className="mt-0.5 text-sm text-slate-700">
+                    {parsedData?.personal?.location || "Not available"}
+                  </p>
+                </div>
+              </div>
 
             </div>
+          </section>
 
+          {/* Professional Information */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                <Briefcase size={19} />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Professional Information
+                </h2>
+
+                <p className="text-xs text-slate-500">
+                  Your professional profile
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-5">
+
+              {/* Headline */}
+              <div>
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Headline
+                </p>
+
+                <p className="text-sm font-medium text-slate-800">
+                  {parsedData?.professional?.headline ||
+                    "Not available"}
+                </p>
+              </div>
+
+              {/* Current Role */}
+              <div>
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Current Role
+                </p>
+
+                <p className="text-sm font-medium text-violet-700">
+                  {parsedData?.professional?.currentRole ||
+                    "Not available"}
+                </p>
+              </div>
+
+              {/* Experience */}
+              <div>
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Years of Experience
+                </p>
+
+                <p className="text-sm font-medium text-slate-800">
+                  {parsedData?.professional?.yearsOfExperience ||
+                    "Not available"}
+                </p>
+              </div>
+
+            </div>
+          </section>
+        </div>
+
+        {/* =========================================
+            SUMMARY
+        ========================================== */}
+        {parsedData?.summary && (
+          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                <UserRound size={19} />
+              </div>
+
+              <h2 className="text-lg font-semibold text-slate-900">
+                Professional Summary
+              </h2>
+            </div>
+
+            <p className="text-sm leading-7 text-slate-600">
+              {parsedData.summary}
+            </p>
           </section>
         )}
 
+        {/* =========================================
+            SKILLS
+        ========================================== */}
+        {skills.length > 0 && (
+          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+                <Briefcase size={19} />
+              </div>
 
-        {/* Languages */}
+              <h2 className="text-lg font-semibold text-slate-900">
+                Skills
+              </h2>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill, index) => (
+                <span
+                  key={index}
+                  className="rounded-lg border border-violet-200 bg-violet-50 px-3 py-1.5 text-sm font-medium text-violet-700"
+                >
+                  {typeof skill === "string"
+                    ? skill
+                    : skill?.name || ""}
+                </span>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* =========================================
+            EXPERIENCE
+        ========================================== */}
+        {experience.length > 0 && (
+          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+                <Briefcase size={19} />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Experience
+                </h2>
+
+                <p className="text-xs text-slate-500">
+                  Your professional work history
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              {experience.map((item, index) => (
+                <div
+                  key={index}
+                  className="relative border-l-2 border-slate-200 pl-6"
+                >
+                  {/* Current Indicator */}
+                  {item?.isCurrent === true && (
+                    <span className="absolute -left-[7px] top-1 h-3 w-3 rounded-full bg-emerald-500 ring-4 ring-emerald-50" />
+                  )}
+
+                  {/* Role */}
+                  <h3 className="text-base font-semibold text-slate-900">
+                    {item?.role || "Role not available"}
+                  </h3>
+
+                  {/* Company */}
+                  <p className="mt-1 text-sm font-medium text-violet-600">
+                    {item?.company || "Company not available"}
+                  </p>
+
+                  {/* Dates */}
+                  {(item?.startDate || item?.endDate) && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                      <CalendarDays size={14} />
+
+                      <span>
+                        {item?.startDate || "Unknown"}
+                        {" - "}
+                        {item?.endDate || "Present"}
+                      </span>
+
+                      {item?.isCurrent === true && (
+                        <span className="rounded-full bg-emerald-50 px-2 py-1 font-medium text-emerald-600">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Employment Type / Location */}
+                  {(item?.employmentType || item?.location) && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {item?.employmentType && (
+                        <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
+                          {item.employmentType}
+                        </span>
+                      )}
+
+                      {item?.location && (
+                        <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs text-slate-600">
+                          {item.location}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Description */}
+                  {item?.description && (
+                    <p className="mt-4 text-sm leading-6 text-slate-600">
+                      {item.description}
+                    </p>
+                  )}
+
+                  {/* Responsibilities */}
+                  {Array.isArray(item?.responsibilities) &&
+                    item.responsibilities.length > 0 && (
+                      <div className="mt-4">
+                        <p className="mb-2 text-sm font-semibold text-slate-800">
+                          Responsibilities
+                        </p>
+
+                        <ul className="space-y-2">
+                          {item.responsibilities.map(
+                            (responsibility, responsibilityIndex) => (
+                              <li
+                                key={responsibilityIndex}
+                                className="flex items-start gap-2 text-sm leading-6 text-slate-600"
+                              >
+                                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-violet-500" />
+
+                                <span>{responsibility}</span>
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    )}
+
+                  {/* Technologies */}
+                  {Array.isArray(item?.technologies) &&
+                    item.technologies.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {item.technologies.map((technology, techIndex) => (
+                          <span
+                            key={techIndex}
+                            className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs text-slate-600"
+                          >
+                            {technology}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* =========================================
+            EDUCATION
+        ========================================== */}
+        {education.length > 0 && (
+          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+                <GraduationCap size={20} />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Education
+                </h2>
+
+                <p className="text-xs text-slate-500">
+                  Academic background
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-5">
+              {education.map((item, index) => (
+                <div
+                  key={index}
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-5"
+                >
+                  <h3 className="font-semibold text-slate-900">
+                    {item?.degree || "Degree not available"}
+                  </h3>
+
+                  {item?.fieldOfStudy && (
+                    <p className="mt-1 text-sm text-slate-600">
+                      {item.fieldOfStudy}
+                    </p>
+                  )}
+
+                  <p className="mt-2 text-sm font-medium text-violet-600">
+                    {item?.institution || "Institution not available"}
+                  </p>
+
+                  {(item?.startDate || item?.endDate) && (
+                    <p className="mt-2 text-xs text-slate-500">
+                      {item?.startDate || "Unknown"}
+                      {" - "}
+                      {item?.endDate || "Present"}
+                    </p>
+                  )}
+
+                  {item?.location && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      {item.location}
+                    </p>
+                  )}
+
+                  {item?.isCurrent === true && (
+                    <span className="mt-3 inline-block rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-600">
+                      Currently Studying
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* =========================================
+            PROJECTS
+        ========================================== */}
+        {projects.length > 0 && (
+          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 text-orange-600">
+                <FolderGit2 size={19} />
+              </div>
+
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Projects
+                </h2>
+
+                <p className="text-xs text-slate-500">
+                  Projects mentioned in your resume
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              {projects.map((project, index) => (
+                <div
+                  key={index}
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold text-slate-900">
+                      {project?.name || "Project"}
+                    </h3>
+
+                    {project?.url && (
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 text-violet-600 transition hover:text-violet-800"
+                        title="Open project"
+                      >
+                        <ExternalLink size={17} />
+                      </a>
+                    )}
+                  </div>
+
+                  {project?.description && (
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                      {project.description}
+                    </p>
+                  )}
+
+                  {Array.isArray(project?.technologies) &&
+                    project.technologies.length > 0 && (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {project.technologies.map((technology, techIndex) => (
+                          <span
+                            key={techIndex}
+                            className="rounded-md bg-white px-2.5 py-1 text-xs text-slate-600 ring-1 ring-slate-200"
+                          >
+                            {technology}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* =========================================
+            CERTIFICATIONS
+        ========================================== */}
+        {certifications.length > 0 && (
+          <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-yellow-100 text-yellow-600">
+                <Award size={19} />
+              </div>
+
+              <h2 className="text-lg font-semibold text-slate-900">
+                Certifications
+              </h2>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {certifications.map((certification, index) => (
+                <div
+                  key={index}
+                  className="rounded-xl border border-slate-200 p-5"
+                >
+                  <h3 className="font-semibold text-slate-900">
+                    {certification?.name || "Certification"}
+                  </h3>
+
+                  {certification?.issuer && (
+                    <p className="mt-1 text-sm text-violet-600">
+                      {certification.issuer}
+                    </p>
+                  )}
+
+                  {certification?.issueDate && (
+                    <p className="mt-2 text-xs text-slate-500">
+                      Issued: {certification.issueDate}
+                    </p>
+                  )}
+
+                  {certification?.expiryDate && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Expires: {certification.expiryDate}
+                    </p>
+                  )}
+
+                  {certification?.credentialUrl && (
+                    <a
+                      href={certification.credentialUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-violet-600 hover:text-violet-800"
+                    >
+                      View Credential
+                      <ExternalLink size={13} />
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* =========================================
+            LANGUAGES
+        ========================================== */}
         {languages.length > 0 && (
           <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-100 text-pink-600">
+                <Languages size={19} />
+              </div>
 
-            <div className="mb-6 flex items-center gap-2">
-              <Languages size={20} className="text-violet-600" />
-
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-semibold text-slate-900">
                 Languages
               </h2>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {languages.map((language, index) => (
                 <div
                   key={index}
-                  className="rounded-xl border border-slate-200 px-4 py-3"
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-4"
                 >
-
-                  <p className="text-sm font-semibold text-slate-800">
-                    {language.name}
+                  <p className="font-medium text-slate-800">
+                    {language?.name || "Language"}
                   </p>
 
-                  {language.proficiency && (
+                  {language?.proficiency && (
                     <p className="mt-1 text-xs text-slate-500">
                       {language.proficiency}
                     </p>
                   )}
-
                 </div>
               ))}
-
             </div>
-
           </section>
         )}
 
-
-        {/* Links */}
+        {/* =========================================
+            PROFESSIONAL LINKS
+        ========================================== */}
         {links.length > 0 && (
           <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100 text-indigo-600">
+                <LinkIcon size={19} />
+              </div>
 
-            <div className="mb-6 flex items-center gap-2">
-              <LinkIcon size={20} className="text-violet-600" />
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Professional Links
+                </h2>
 
-              <h2 className="text-lg font-bold text-slate-900">
-                Professional Links
-              </h2>
+                <p className="text-xs text-slate-500">
+                  Links extracted from your resume
+                </p>
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-
+            <div className="space-y-3">
               {links.map((link, index) => (
-                link.url && (
-                  <a
-                    key={index}
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700"
-                  >
-                    <LinkIcon size={15} />
-                    {link.type || "Link"}
-                  </a>
-                )
+                <div
+                  key={index}
+                  className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-800">
+                      {link?.type || "Link"}
+                    </p>
+
+                    <p className="mt-1 truncate text-xs text-slate-500">
+                      {link?.url || "URL not available"}
+                    </p>
+                  </div>
+
+                  {link?.url && (
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 rounded-lg p-2 text-violet-600 transition hover:bg-violet-100"
+                      title={`Open ${link.type || "link"}`}
+                    >
+                      <ExternalLink size={17} />
+                    </a>
+                  )}
+                </div>
               ))}
-
             </div>
-
           </section>
         )}
+
+        {/* =========================================
+            RESUME FILE INFO
+        ========================================== */}
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+
+            <div>
+              <p className="text-sm font-semibold text-slate-800">
+                Uploaded Resume
+              </p>
+
+              <p className="mt-1 text-sm text-slate-500">
+                {resume?.fileName || "Resume file"}
+              </p>
+
+              {resume?.uploadedAt && (
+                <p className="mt-1 text-xs text-slate-400">
+                  Uploaded on{" "}
+                  {new Date(resume.uploadedAt).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+
+            <button
+              onClick={handleDeleteResume}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-100"
+            >
+              <Trash2 size={17} />
+              Delete Resume
+            </button>
+          </div>
+        </section>
 
       </div>
     </div>
