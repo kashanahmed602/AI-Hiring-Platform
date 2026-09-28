@@ -332,4 +332,39 @@ const resumeUpload = async (req, res) => {
     }
 };
 
-module.exports = { userRegister, userLogin, getUserProfile, updateUserProfile, updatePassword, resumeUpload };
+const ResumeDelete = async (req, res) => {
+    try {
+        const user = await Candidate.findById(req.user.id);
+
+        if(!user || user.role !== 'candidate') {
+            return res.status(404).json({
+                success: false,
+                message: 'User Not Found'
+            });
+        }
+
+        if(!user.resume || !user.resume.fileId) {
+            return res.status(400).json({
+                success: false,
+                message: 'No Resume Found to Delete'
+            });
+        }
+
+        await imagekit.deleteFile(user.resume.fileId);
+
+        user.resume = undefined;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Resume Deleted Successfully'
+        });
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};
+
+module.exports = { userRegister, userLogin, getUserProfile, updateUserProfile, updatePassword, resumeUpload, ResumeDelete };

@@ -18,9 +18,12 @@ import {
 
 import { useState } from "react";
 import UploadResume from "./UploadResume";
+import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 const ResumeUploaded = ({ data }) => {
   const [uploadAgain, setUploadAgain] = useState(false);
+  const navigate = useNavigate();
 
   const resume = data?.resume;
   const parsedData = resume?.parsedData;
@@ -61,8 +64,23 @@ const ResumeUploaded = ({ data }) => {
   // --------------------------------
   // Delete Resume
   // --------------------------------
+
+  const deleteResume = async () => {
+    try {
+      const response = await axios.delete('http://localhost:3001/api/v1/resume/delete',{
+        withCredentials: true
+      });
+      alert("Resume Deleted Successfully");
+      window.location.reload();
+      navigate(<UploadResume />);
+
+    }catch(error) {
+      alert(error.message);
+    }
+  }
   const handleDeleteResume = () => {
-    console.log("Delete resume clicked");
+    
+    deleteResume();
 
     // Backend delete API yahan add hoga
   };

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { userRegister, userLogin, getUserProfile, updateUserProfile, updatePassword, resumeUpload } = require('../Controller/userController');
+const { userRegister, userLogin, getUserProfile, updateUserProfile, updatePassword, resumeUpload, ResumeDelete } = require('../Controller/userController');
 const Protect = require('../Middleware/authMiddleware');
 const upload = require('../Middleware/upload');
 
@@ -11,5 +11,5 @@ router.get('/candidate/profile', Protect, getUserProfile);
 router.put('/candidate/profileUpdate', Protect, updateUserProfile);
 router.put('/candidate/updatePassword', Protect, updatePassword);
 router.post('/candidate/resumeUpload', Protect, upload.single('resume'), resumeUpload);
-
+router.delete('/resume/delete', Protect, ResumeDelete);
 module.exports = router;
