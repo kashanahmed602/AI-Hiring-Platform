@@ -109,6 +109,14 @@ const userLogin = async (req, res) => {
             message: "Internal Server Error"
         });
     }
+};
+
+const userLogout = async (req, res) => {
+    try{
+        
+    }catch(error){
+
+    }
 }
 
 const getUserProfile = async (req, res) => {
