@@ -1,4 +1,5 @@
 const Job = require('../Models/jobModel');
+const { redisClient } = require('../config/redis');
 
 const createJob = async (req, res) => {
     try {
@@ -18,6 +19,7 @@ const createJob = async (req, res) => {
         });
 
         await job.save();
+        await redisClient.del('jobs:all');
         res.status(201).json({
             success: true,
             message: "Job Created Successfully",
@@ -33,6 +35,20 @@ const createJob = async (req, res) => {
 
 const getJobs = async (req, res) => {
     try {
+
+        const cachedJobs = await redisClient.get('jobs:all');
+
+        if(cachedJobs){
+            console.log("Redis Hit");
+            return res.status(200).json({
+                success: true,
+                message:"Redis data Fetched Successfully",
+                jobs: JSON.parse(cachedJobs)
+            })
+        }
+
+        console.log("Miss Hit");
+
         const jobs = await Job.find();
 
         if(!jobs) {
@@ -41,6 +57,8 @@ const getJobs = async (req, res) => {
                 message: "No jobs found"
             })
         }
+
+        await redisClient.set("jobs:all", JSON.stringify(jobs));
 
         res.status(200).json({
             success: true,
@@ -52,6 +70,8 @@ const getJobs = async (req, res) => {
             success: false,
             message: "Internal Server Error"
         })
+
+        console.log("error", error.message);
 
     }
 }
@@ -73,6 +93,9 @@ const deleteJob = async (req, res) => {
             success: true,
             message: "Job Deleted Successfully"
         })
+
+        await redisClient.del('jobs:all');
+
     }catch(error){
         res.status(500).json({
             success: false,
@@ -109,6 +132,8 @@ const updateJob = async (req, res) => {
             success: true,
             message: "Job Updated successfully"
         })
+
+        await redisClient.del('jobs:all');
 
     }catch(error){
         res.status(500).json({
