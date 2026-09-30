@@ -2,8 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const cookieParser = require('cookie-parser');
+const {connectRedis} = require('./config/redis');
 
 connectDB();
+connectRedis();
+
 const app = express();
 app.use(cors({
   origin: 'http://localhost:5173',
