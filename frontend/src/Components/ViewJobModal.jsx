@@ -178,6 +178,7 @@ const ViewJobModal = ({ job, onClose }) => {
             )}
 
           </div>
+          
 
           {/* Description */}
           <div className="mt-6">

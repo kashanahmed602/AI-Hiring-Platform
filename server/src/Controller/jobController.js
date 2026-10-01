@@ -1,5 +1,7 @@
 const Job = require('../Models/jobModel');
 const { redisClient } = require('../config/redis');
+const matchResumeWithAI = require('../Utils/MatchScoreWithAI');
+const Candidate = require('../Models/userModel');
 
 const createJob = async (req, res) => {
     try {
@@ -49,7 +51,25 @@ const getJobs = async (req, res) => {
 
         console.log("Miss Hit");
 
-        const jobs = await Job.find();
+        
+        const user = await Candidate.findById(req.user.id);
+
+        if(!user || user.role !== 'candidate'){ 
+            return res.status(403).json({
+                success: false,
+                message: "Access Denied"
+            });
+        }
+
+        const jobs = await Job.find().sort({ createAt: -1});
+
+        const resumeText = user.resume?.parsedData;
+        if(!resumeText){
+            return res.status(400).json({
+                success: false,
+                message: "Resume Not Available"
+            });
+        }
 
         if(!jobs) {
             return res.status(404).json({
@@ -58,12 +78,21 @@ const getJobs = async (req, res) => {
             })
         }
 
-        await redisClient.set("jobs:all", JSON.stringify(jobs));
+        const jobMatchScores = await Promise.all(jobs.map(async (job) => {
+            const matchResult = await matchResumeWithAI(resumeText, job);
+            return {
+                ...job.toObject(),
+                matchScore: matchResult.matchScore,
+                matchDetails: matchResult.matchDetails
+            };
+        }))
+
+        await redisClient.set("jobs:all", JSON.stringify(jobMatchScores));
 
         res.status(200).json({
             success: true,
             message: "Jobs Fetched Successfully",
-            jobs: jobs
+            jobs: jobMatchScores
         })
     }catch(error){
         res.status(500).json({

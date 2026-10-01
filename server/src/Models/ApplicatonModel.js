@@ -28,21 +28,21 @@ const applicationSchema = new mongoose.Schema({
     matchDetails: {
         skillsMatch: {
             type: Number,
-            max: 10,
+            max: 1,
             min: 0,
             default: null
         },
 
         experienceMatch: {
             type: Number,
-            max: 10,
+            max: 1,
             min: 0,
             default: null
         },
 
         educationMatch: {
             type: Number,
-            max: 10,
+            max: 1,
             min: 0,
             default: null
         },

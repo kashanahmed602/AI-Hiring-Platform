@@ -239,6 +239,217 @@ const CandidateJobViewModal = ({
 
           </div>
 
+          {/* AI MATCH SCORE */}
+<div className="mt-6">
+
+  <div className="flex items-center gap-2 mb-3">
+    <CheckCircle2
+      size={18}
+      className="text-violet-600"
+    />
+
+    <h3 className="font-semibold text-slate-900">
+      AI Match Score
+    </h3>
+  </div>
+
+  <div className="rounded-2xl border border-violet-200 bg-violet-50/50 p-5">
+
+    {/* Main Score */}
+    <div className="flex items-center justify-between gap-4 mb-5">
+
+      <div>
+        <p className="text-xs font-medium text-slate-500">
+          Overall Resume Match
+        </p>
+
+        <p className="text-3xl font-bold text-violet-700 mt-1">
+          {job.matchScore ?? 0}%
+        </p>
+      </div>
+
+      <div className="text-right">
+        <p className="text-xs text-slate-500">
+          AI Analysis
+        </p>
+
+        <p className="text-sm font-semibold text-violet-700 mt-1">
+          Resume vs Job
+        </p>
+      </div>
+
+    </div>
+
+
+    {/* Match Details */}
+    {job.matchDetails && (
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+        {/* Skills */}
+        <div className="rounded-xl bg-white border border-slate-200 p-4">
+
+          <p className="text-xs text-slate-400">
+            Skills Match
+          </p>
+
+          <p className="text-lg font-bold text-slate-900 mt-1">
+            {Math.round(
+              (job.matchDetails.skillsMatch || 0) * 100
+            )}%
+          </p>
+
+        </div>
+
+
+        {/* Experience */}
+        <div className="rounded-xl bg-white border border-slate-200 p-4">
+
+          <p className="text-xs text-slate-400">
+            Experience Match
+          </p>
+
+          <p className="text-lg font-bold text-slate-900 mt-1">
+            {Math.round(
+              (job.matchDetails.experienceMatch || 0) * 100
+            )}%
+          </p>
+
+        </div>
+
+
+        {/* Education */}
+        <div className="rounded-xl bg-white border border-slate-200 p-4">
+
+          <p className="text-xs text-slate-400">
+            Education Match
+          </p>
+
+          <p className="text-lg font-bold text-slate-900 mt-1">
+            {Math.round(
+              (job.matchDetails.educationMatch || 0) * 100
+            )}%
+          </p>
+
+        </div>
+
+
+        {/* Work Alignment */}
+        <div className="rounded-xl bg-white border border-slate-200 p-4">
+
+          <p className="text-xs text-slate-400">
+            Work Alignment
+          </p>
+
+          <p className="text-lg font-bold text-slate-900 mt-1">
+            {Math.round(
+              (job.matchDetails.workAlignment || 0) * 100
+            )}%
+          </p>
+
+        </div>
+
+      </div>
+
+    )}
+
+
+    {/* Strengths */}
+    {job.matchDetails?.strengths?.length > 0 && (
+
+      <div className="mt-5">
+
+        <p className="text-sm font-semibold text-slate-900 mb-2">
+          Your Strengths
+        </p>
+
+        <div className="space-y-2">
+
+          {job.matchDetails.strengths.map(
+            (strength, index) => (
+
+              <div
+                key={index}
+                className="flex items-start gap-2"
+              >
+
+                <CheckCircle2
+                  size={16}
+                  className="text-emerald-600 mt-0.5 shrink-0"
+                />
+
+                <p className="text-sm text-slate-600">
+                  {strength}
+                </p>
+
+              </div>
+
+            )
+          )}
+
+        </div>
+
+      </div>
+
+    )}
+
+
+    {/* Missing Skills */}
+    {job.matchDetails?.missingSkills?.length > 0 && (
+
+      <div className="mt-5">
+
+        <p className="text-sm font-semibold text-slate-900 mb-2">
+          Missing Skills
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+
+          {job.matchDetails.missingSkills.map(
+            (skill, index) => (
+
+              <span
+                key={`${skill}-${index}`}
+                className="px-3 py-1.5 rounded-xl bg-red-50 text-red-700 text-xs font-medium"
+              >
+                {skill}
+              </span>
+
+            )
+          )}
+
+        </div>
+
+      </div>
+
+    )}
+
+
+    {/* Experience Gap */}
+    {job.matchDetails?.experienceGap && (
+
+      <div className="mt-5">
+
+        <p className="text-sm font-semibold text-slate-900 mb-2">
+          Experience Gap
+        </p>
+
+        <div className="rounded-xl bg-amber-50 border border-amber-200 p-4">
+
+          <p className="text-sm text-amber-800">
+            {job.matchDetails.experienceGap}
+          </p>
+
+        </div>
+
+      </div>
+
+    )}
+
+  </div>
+
+</div>
+
 
           {/* ==================================================
               DESCRIPTION

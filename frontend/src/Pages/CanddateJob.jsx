@@ -205,6 +205,24 @@ const CandidateJobs = () => {
 
                   </p>
 
+                  {/* AI MATCH SCORE */}
+
+{job.matchScore !== undefined && (
+
+  <div className="flex items-center gap-2 mt-3">
+
+    <span className="text-sm font-medium text-slate-500">
+      AI Match:
+    </span>
+
+    <span className="px-2.5 py-1 rounded-lg bg-violet-50 text-violet-700 text-sm font-bold">
+      {job.matchScore}%
+    </span>
+
+  </div>
+
+)}
+
 
                   {/* Job Details */}
 
