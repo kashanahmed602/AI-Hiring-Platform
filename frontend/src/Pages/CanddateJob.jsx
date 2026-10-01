@@ -205,19 +205,78 @@ const CandidateJobs = () => {
 
                   </p>
 
-                  {/* AI MATCH SCORE */}
+                 {/* AI MATCH SCORE */}
 
 {job.matchScore !== undefined && (
 
-  <div className="flex items-center gap-2 mt-3">
+  <div className="flex items-center gap-4 mt-4">
 
-    <span className="text-sm font-medium text-slate-500">
-      AI Match:
-    </span>
+    {/* Circular Score */}
 
-    <span className="px-2.5 py-1 rounded-lg bg-violet-50 text-violet-700 text-sm font-bold">
-      {job.matchScore}%
-    </span>
+    <div className="relative w-16 h-16 shrink-0">
+
+      <svg
+        className="w-16 h-16 -rotate-90"
+        viewBox="0 0 100 100"
+      >
+
+        {/* Background Circle */}
+
+        <circle
+          cx="50"
+          cy="50"
+          r="42"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="8"
+          className="text-slate-100"
+        />
+
+        {/* Progress Circle */}
+
+        <circle
+          cx="50"
+          cy="50"
+          r="42"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="8"
+          strokeLinecap="round"
+          className="text-violet-600"
+          strokeDasharray="263.89"
+          strokeDashoffset={
+            263.89 - (263.89 * job.matchScore) / 100
+          }
+        />
+
+      </svg>
+
+      {/* Score */}
+
+      <div className="absolute inset-0 flex items-center justify-center">
+
+        <span className="text-sm font-bold text-slate-900">
+          {job.matchScore}%
+        </span>
+
+      </div>
+
+    </div>
+
+
+    {/* Text */}
+
+    <div>
+
+      <p className="text-sm font-semibold text-slate-900">
+        AI Match
+      </p>
+
+      <p className="text-xs text-slate-400 mt-0.5">
+        Resume compatibility
+      </p>
+
+    </div>
 
   </div>
 
@@ -307,7 +366,11 @@ const CandidateJobs = () => {
 
                 </div>
 
+                
+
               </div>
+
+              
 
             </div>
 
