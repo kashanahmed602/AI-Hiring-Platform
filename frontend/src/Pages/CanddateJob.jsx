@@ -86,13 +86,23 @@ const CandidateJobs = () => {
   // APPLY JOB
   // ======================================================
 
-  const handleApplyJob = (job) => {
+  const handleApplyJob = async (job) => {
+    try {
 
-    console.log("Apply for Job:", job);
+      const apply = await axios.post(
+        "http://localhost:3001/api/v1/applyForJob",
+        { jobId: job._id, matchScore: job.matchScore, matchDetails: job.matchDetails },
+        {
+          withCredentials: true,
+        }
+      );
 
-    alert(
-      `You selected "${job.Title}" to apply.`
-    );
+      alert("Applied Successfully");
+    }catch(error){
+      console.log("Error Applying for Job:", error.response?.data || error.message);
+
+    }
+    
 
   };
 

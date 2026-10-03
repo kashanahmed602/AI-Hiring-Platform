@@ -2,6 +2,7 @@ const Job = require('../Models/jobModel');
 const { redisClient } = require('../config/redis');
 const matchResumeWithAI = require('../Utils/MatchScoreWithAI');
 const Candidate = require('../Models/userModel');
+const Application = require('../Models/ApplicatonModel');
 
 const createJob = async (req, res) => {
     try {
@@ -172,4 +173,69 @@ const updateJob = async (req, res) => {
     }
 };
 
-module.exports = {createJob, getJobs, deleteJob, updateJob};
+const applyForJob = async (req, res) => {
+    try {
+        const { jobId, matchScore, matchDetails, status } = req.body;
+        const candidateId = req.user.id;
+
+        const user = await Candidate.findById(candidateId);
+
+        if(!user || user.role !== 'candidate'){
+            return res.status(403).json({
+                success: false,
+                message: 'Access Denied'
+            });
+        }
+
+        const resumeText = user.resume?.parsedData;
+        if(!resumeText){
+            return res.status(400).json({
+                success: false,
+                message: "Resume Not Available"
+            });
+        }
+
+        const job = await Job.findById(jobId);
+
+        if(!job){
+            return res.status(404).json({
+                success: false,
+                message: "Job Not Found"
+            });
+        }
+
+        const existingApplicaton = await Application.findOne({ jobId, candidateId });
+
+        if(existingApplicaton){
+            return res.status(400).json({
+                success: false,
+                message: "Application Already Submitted"
+            });
+        }
+
+        const application = new Application({
+            jobId,
+            candidateId,
+            resumeSnapshot: resumeText,
+            matchScore,
+            matchDetails,
+            status
+        })
+
+        await application.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Application Submitted Successfully"
+        })
+
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+        console.log("error", error.message);
+    }
+}
+
+module.exports = {createJob, getJobs, deleteJob, updateJob, applyForJob};
