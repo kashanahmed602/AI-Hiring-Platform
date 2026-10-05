@@ -13,6 +13,7 @@ import CandidateJobs from './Pages/CanddateJob'
 import MyResume from './Pages/MyResume'
 import ResumeBuilder from './Pages/ResumeBuilder'
 import UploadResume from './Components/UploadResume'
+import CandidateApplications from './Pages/CandidateApplications'
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
       <Route path='/candidate/resume' element={<ProtectedRoutes><MyResume/></ProtectedRoutes>} />
       <Route path='/candidate/resume/upload' element={<ProtectedRoutes><UploadResume/></ProtectedRoutes>} />
       <Route path='/resume-builder' element={<ResumeBuilder/>} />
+      <Route path='/candidate/applications' element={<ProtectedRoutes><CandidateApplications/></ProtectedRoutes>} />
     </Routes>
   )
 }
