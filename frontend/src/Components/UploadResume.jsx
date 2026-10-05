@@ -8,13 +8,18 @@ import {
 import axios from 'axios';
 
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+// import ResumeBuilder from '../Pages/ResumeBuilder';
 
 const UploadResume = () => {
+
+  const navigate = useNavigate();
 
   const fileInputRef = useRef(null);
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [error, setError] = useState("");
+  const [resumeCreate, setResumeCreate] = useState(false);
 
 
   // ======================================================
@@ -149,6 +154,7 @@ const UploadResume = () => {
 
 
   return (
+    <>
     <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8">
 
 
@@ -156,6 +162,7 @@ const UploadResume = () => {
           HEADER
       ================================================== */}
 
+<div className= "flex justify-between items-center">
       <div className="mb-6">
 
         <h2 className="text-xl font-bold text-slate-900">
@@ -168,7 +175,10 @@ const UploadResume = () => {
         </p>
 
       </div>
-
+      <button onClick={() => navigate("/resume-builder")} className="bg-violet-600 hover:bg-violet-700 text-white font-semibold py-2 px-4 rounded-lg transition">
+        Create Your Resume
+      </button>
+</div>
 
       {/* ==================================================
           UPLOAD AREA
@@ -366,6 +376,13 @@ const UploadResume = () => {
       </div>
 
     </div>
+
+    {/* {resumeCreate && (
+      <ResumeBuilder 
+        onClose={() => setResumeCreate(false)}
+      />
+    )} */}
+    </>
   );
 };
 
