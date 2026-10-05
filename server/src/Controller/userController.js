@@ -113,9 +113,31 @@ const userLogin = async (req, res) => {
 
 const userLogout = async (req, res) => {
     try{
-        
-    }catch(error){
+        const token = req.cookies.token;
 
+        if(!token){
+            return res.status(400).json({
+                success: false,
+                message: "User Not Logged In"
+            })
+        }
+
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "User Logged Out Successfully"
+        })
+
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
     }
 }
 
@@ -375,4 +397,4 @@ const ResumeDelete = async (req, res) => {
     }
 };
 
-module.exports = { userRegister, userLogin, getUserProfile, updateUserProfile, updatePassword, resumeUpload, ResumeDelete };
+module.exports = { userRegister, userLogin, getUserProfile, updateUserProfile, updatePassword, resumeUpload, ResumeDelete, userLogout };
