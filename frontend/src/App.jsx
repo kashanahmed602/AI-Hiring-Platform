@@ -31,6 +31,8 @@ function App() {
       <Route path='/candidate/resume/upload' element={<ProtectedRoutes><UploadResume/></ProtectedRoutes>} />
       <Route path='/resume-builder' element={<ResumeBuilder/>} />
       <Route path='/candidate/applications' element={<ProtectedRoutes><CandidateApplications/></ProtectedRoutes>} />
+      <Route path='/jobs/:id' element={<ProtectedRoutes><JobCreation/></ProtectedRoutes>} />
+
     </Routes>
   )
 }

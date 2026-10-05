@@ -34,6 +34,7 @@ const JobModal = ({ onClose }) => {
             Salary: jobData.salary,
             Experience: jobData.experience,
             Description: jobData.description,
+            status: "Active",
             RequiredSkills: jobData.skills
         },
         {

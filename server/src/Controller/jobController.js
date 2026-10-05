@@ -7,7 +7,7 @@ const Recruiter = require('../Models/recruiterModel');
 
 const createJob = async (req, res) => {
     try {
-        const { Title, Location, JobType, WorkMode, Salary, Experience, RequiredSkills, Description } = req.body;
+        const { Title, Location, JobType, WorkMode, Salary, Experience, RequiredSkills, Description, status } = req.body;
         const CreatedBy = req.user.id; // Assuming you have user authentication middleware that sets req.user
 
         const job = new Job({
@@ -19,6 +19,7 @@ const createJob = async (req, res) => {
             Experience,
             RequiredSkills,
             Description,
+            status,
             CreatedBy
         });
 

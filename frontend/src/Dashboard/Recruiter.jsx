@@ -9,11 +9,15 @@ import {
   Sparkles,
   Target,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../Components/Sidebar";
 import JobModal from "../Components/JobModal";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const RecruiterDashboard = () => {
+
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [jobModal, setJobModal] = useState(false);
 
@@ -22,50 +26,80 @@ const RecruiterDashboard = () => {
     headline: "Hiring Workspace",
   });
 
-  const jobs = [
-    {
-      title: "Senior React Developer",
-      applicants: 128,
-      shortlisted: 14,
-      status: "Active",
-      days: "12 days left",
-    },
-    {
-      title: "Backend Node.js Engineer",
-      applicants: 86,
-      shortlisted: 9,
-      status: "Active",
-      days: "18 days left",
-    },
-    {
-      title: "Product Designer",
-      applicants: 64,
-      shortlisted: 7,
-      status: "Active",
-      days: "24 days left",
-    },
-  ];
+  const [jobs, setJobs] = useState([]);
 
-  const candidates = [
-    {
-      name: "Ali Raza",
-      role: "Senior React Developer",
-      score: 96,
-      initials: "AR",
-    },
-    {
-      name: "Sarah Khan",
-      role: "Frontend Engineer",
-      score: 93,
-      initials: "SK",
-    },
-    {
-      name: "Ahmed Hassan",
-      role: "Full Stack Developer",
-      score: 89,
-      initials: "AH",
-    },
-  ];
+ const fetchJobs = async () => {
+  try {
+    const response = await axios.get(
+      "http://localhost:3001/api/v1/recruiter/jobs",
+      {
+        withCredentials: true,
+      }
+    );
+
+    console.log("Jobs:", response.data.jobs);
+
+    const activeJobs = response.data.jobs.filter(
+      (job) => job.status === "Active"
+    );
+
+    console.log("Active Jobs:", activeJobs);
+
+    setJobs(activeJobs);
+
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
+  useEffect (() => {
+    fetchJobs();
+  },[])
+
+  // const jobs = [
+  //   {
+  //     title: "Senior React Developer",
+  //     applicants: 128,
+  //     shortlisted: 14,
+  //     status: "Active",
+  //     days: "12 days left",
+  //   },
+  //   {
+  //     title: "Backend Node.js Engineer",
+  //     applicants: 86,
+  //     shortlisted: 9,
+  //     status: "Active",
+  //     days: "18 days left",
+  //   },
+  //   {
+  //     title: "Product Designer",
+  //     applicants: 64,
+  //     shortlisted: 7,
+  //     status: "Active",
+  //     days: "24 days left",
+  //   },
+  // ];
+
+  // const candidates = [
+  //   {
+  //     name: "Ali Raza",
+  //     role: "Senior React Developer",
+  //     score: 96,
+  //     initials: "AR",
+  //   },
+  //   {
+  //     name: "Sarah Khan",
+  //     role: "Frontend Engineer",
+  //     score: 93,
+  //     initials: "SK",
+  //   },
+  //   {
+  //     name: "Ahmed Hassan",
+  //     role: "Full Stack Developer",
+  //     score: 89,
+  //     initials: "AH",
+  //   },
+  // ];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900">
@@ -219,7 +253,7 @@ const RecruiterDashboard = () => {
             </div>
           </div>
 
-          <div className="grid xl:grid-cols-5 gap-5">
+          <div>
             <div className="xl:col-span-3 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <div>
@@ -229,7 +263,7 @@ const RecruiterDashboard = () => {
                   </p>
                 </div>
 
-                <button className="text-xs font-semibold text-blue-600 flex items-center gap-1">
+                <button onClick={() => navigate('/jobs')} className="text-xs font-semibold text-blue-600 flex items-center gap-1">
                   Manage jobs
                   <ChevronRight size={14} />
                 </button>
@@ -238,7 +272,7 @@ const RecruiterDashboard = () => {
               <div className="space-y-3">
                 {jobs.map((job) => (
                   <div
-                    key={job.title}
+                    key={job._id}
                     className="border border-slate-100 rounded-2xl p-4 hover:border-blue-200 hover:shadow-sm transition"
                   >
                     <div className="flex items-center gap-4">
@@ -247,7 +281,7 @@ const RecruiterDashboard = () => {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm truncate">{job.title}</h3>
+                        <h3 className="font-semibold text-sm truncate">{job.Title}</h3>
                         <p className="text-xs text-slate-400 mt-1">
                           {job.applicants} applicants • {job.shortlisted} shortlisted
                         </p>
@@ -257,10 +291,10 @@ const RecruiterDashboard = () => {
                         <span className="inline-flex px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-semibold">
                           {job.status}
                         </span>
-                        <p className="text-[10px] text-slate-400 mt-1">{job.days}</p>
+                        <p className="text-[10px] text-slate-400 mt-1">days</p>
                       </div>
 
-                      <button className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-blue-50 hover:text-blue-600">
+                      <button onClick={() => navigate(`/jobs/${job._id}`)} className="w-9 h-9 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-blue-50 hover:text-blue-600">
                         <ChevronRight size={17} />
                       </button>
                     </div>
@@ -269,7 +303,7 @@ const RecruiterDashboard = () => {
               </div>
             </div>
 
-            <div className="xl:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+            {/* <div className="xl:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <h2 className="font-semibold text-lg">Top candidates</h2>
@@ -302,7 +336,7 @@ const RecruiterDashboard = () => {
               <button className="mt-6 w-full py-2.5 rounded-xl bg-slate-50 text-sm font-medium hover:bg-slate-100 transition">
                 View all candidates
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </main>

@@ -44,6 +44,12 @@ const jobSchema = new mongoose.Schema({
         required: true
     },
 
+    status: {
+        type: String,
+        enum: ["Active", "Closed"],
+        default: "Active"
+    },
+
     CreatedBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Recruiter",
