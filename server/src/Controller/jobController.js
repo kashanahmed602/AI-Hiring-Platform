@@ -3,6 +3,7 @@ const { redisClient } = require('../config/redis');
 const matchResumeWithAI = require('../Utils/MatchScoreWithAI');
 const Candidate = require('../Models/userModel');
 const Application = require('../Models/ApplicatonModel');
+const Recruiter = require('../Models/recruiterModel');
 
 const createJob = async (req, res) => {
     try {

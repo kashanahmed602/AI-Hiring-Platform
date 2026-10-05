@@ -42,7 +42,7 @@ export const JobsSection = ({
       setLoading(true);
 
       const response = await axios.get(
-        "http://localhost:3001/api/v1/jobs",
+        "http://localhost:3001/api/v1/recruiter/jobs",
         {
           withCredentials: true,
         }

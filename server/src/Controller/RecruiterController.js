@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const cookie = require('cookie-parser');
+const Job = require('../Models/jobModel');
 
 const RecruiterRegister = async (req, res) => {
     try{
@@ -108,4 +109,30 @@ const RecruiterLogin = async (req, res) => {
     }
 }
 
-module.exports = { RecruiterRegister, RecruiterLogin };
+const getRecruiterJobs = async (req, res) => {
+    try {
+        const recruiter = await Recruiter.findById(req.user.id);
+        const jobs = await Job.find({ CreatedBy: recruiter._id }).sort({ createdAt: -1 });
+
+        if((!jobs || jobs.length === 0) || (!recruiter || recruiter.role !== "recruiter")){
+            return res.status(404).json({
+                success: false,
+                message: "No jobs found for this recruiter."
+            })
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Jobs Fetched Successfully",
+            jobs: jobs
+        })
+    }catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+        console.log("recruterrr :", error.message);
+    }
+}
+
+module.exports = { RecruiterRegister, RecruiterLogin, getRecruiterJobs };
