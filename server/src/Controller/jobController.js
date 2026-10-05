@@ -39,72 +39,156 @@ const createJob = async (req, res) => {
 const getJobs = async (req, res) => {
     try {
 
-        const cachedJobs = await redisClient.get('jobs:all');
+        // ==========================================
+        // 1. Candidate check
+        // ==========================================
 
-        if(cachedJobs){
-            console.log("Redis Hit");
-            return res.status(200).json({
-                success: true,
-                message:"Redis data Fetched Successfully",
-                jobs: JSON.parse(cachedJobs)
-            })
-        }
-
-        console.log("Miss Hit");
-
-        
         const user = await Candidate.findById(req.user.id);
 
-        if(!user || user.role !== 'candidate'){ 
+        if (!user || user.role !== "candidate") {
             return res.status(403).json({
                 success: false,
                 message: "Access Denied"
             });
         }
 
-        const jobs = await Job.find().sort({ createAt: -1});
+
+        // ==========================================
+        // 2. Get candidate's applied jobs
+        // ==========================================
+
+        const applications = await Application.find({
+            candidateId: req.user.id
+        }).select("jobId");
+
+        const appliedJobIds = applications.map(
+            (application) => application.jobId.toString()
+        );
+
+
+        // ==========================================
+        // 3. Check Redis
+        // ==========================================
+
+        const cachedJobs = await redisClient.get("jobs:all");
+
+        if (cachedJobs) {
+
+            console.log("Redis Hit");
+
+            const jobs = JSON.parse(cachedJobs);
+
+            // Remove already applied jobs
+            const availableJobs = jobs.filter(
+                (job) => !appliedJobIds.includes(job._id.toString())
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: "Redis data Fetched Successfully",
+                jobs: availableJobs
+            });
+        }
+
+
+        // ==========================================
+        // 4. Redis MISS
+        // ==========================================
+
+        console.log("Redis Miss");
+
+
+        const jobs = await Job.find().sort({
+            createdAt: -1
+        });
+
+
+        if (!jobs || jobs.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No jobs found"
+            });
+        }
+
+
+        // ==========================================
+        // 5. Resume
+        // ==========================================
 
         const resumeText = user.resume?.parsedData;
-        if(!resumeText){
+
+        if (!resumeText) {
             return res.status(400).json({
                 success: false,
                 message: "Resume Not Available"
             });
         }
 
-        if(!jobs) {
-            return res.status(404).json({
-                success: false,
-                message: "No jobs found"
+
+        // ==========================================
+        // 6. AI Match Scores
+        // ==========================================
+
+        const jobMatchScores = await Promise.all(
+
+            jobs.map(async (job) => {
+
+                const matchResult = await matchResumeWithAI(
+                    resumeText,
+                    job
+                );
+
+                return {
+                    ...job.toObject(),
+
+                    matchScore: matchResult.matchScore,
+
+                    matchDetails: matchResult.matchDetails
+                };
             })
-        }
+        );
 
-        const jobMatchScores = await Promise.all(jobs.map(async (job) => {
-            const matchResult = await matchResumeWithAI(resumeText, job);
-            return {
-                ...job.toObject(),
-                matchScore: matchResult.matchScore,
-                matchDetails: matchResult.matchDetails
-            };
-        }))
 
-        await redisClient.set("jobs:all", JSON.stringify(jobMatchScores));
+        // ==========================================
+        // 7. Save jobs + scores in Redis
+        // ==========================================
 
-        res.status(200).json({
+        await redisClient.set(
+            "jobs:all",
+            JSON.stringify(jobMatchScores)
+        );
+
+
+        // ==========================================
+        // 8. Remove already applied jobs
+        // ==========================================
+
+        const availableJobs = jobMatchScores.filter(
+            (job) => !appliedJobIds.includes(job._id.toString())
+        );
+
+
+        // ==========================================
+        // 9. Response
+        // ==========================================
+
+        return res.status(200).json({
             success: true,
             message: "Jobs Fetched Successfully",
-            jobs: jobMatchScores
-        })
-    }catch(error){
-        res.status(500).json({
+            jobs: availableJobs
+        });
+
+
+    } catch (error) {
+
+        console.log("Get Jobs Error:", error.message);
+
+        return res.status(500).json({
             success: false,
             message: "Internal Server Error"
-        })
-
-        console.log("error", error.message);
-
+        });
     }
-}
+};
 
 const deleteJob = async (req, res) => {
     try {
