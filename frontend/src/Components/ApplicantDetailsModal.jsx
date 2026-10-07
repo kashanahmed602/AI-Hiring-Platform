@@ -1,7 +1,32 @@
+import { useState } from "react";
 import { X } from "lucide-react";
+import axios from 'axios';
 
 const ApplicantDetailsModal = ({ application, onClose }) => {
   if (!application) return null;
+
+  const [status, setStatus] = useState(
+    application.status || "applied"
+  );
+
+  const handleStatusChange = async (newStatus) => {
+    try{
+      setStatus(newStatus);
+      
+      const updateStatus = await axios.put('http://localhost:3001/api/v1/applications-status-update', {
+        applicationId: application._id,
+        status: newStatus
+      },
+    {
+          withCredentials: true,
+        })
+
+        alert("Status Updated Sucessfully");
+    }catch(error){
+      alert(error.message);
+      setStatus(application.status || "applied");
+      }
+  }
 
   const resume = application.resumeSnapshot;
 
@@ -16,6 +41,7 @@ const ApplicantDetailsModal = ({ application, onClose }) => {
       />
 
       <div className="relative w-full max-w-5xl max-h-[92vh] overflow-hidden bg-white rounded-3xl shadow-2xl">
+
         {/* Header */}
         <div className="flex items-start justify-between p-6 border-b border-slate-200">
           <div>
@@ -30,6 +56,21 @@ const ApplicantDetailsModal = ({ application, onClose }) => {
             <p className="text-sm text-slate-500 mt-1">
               {personal?.email}
             </p>
+
+            {/* Status */}
+            <div className="mt-3">
+              <select 
+                value={status}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm font-medium text-slate-700 outline-none focus:border-violet-400"
+              >
+                <option value="applied">Applied</option>
+                <option value="under-review">Under Review</option>
+                <option value="shortlisted">Shortlisted</option>
+                <option value="rejected">Rejected</option>
+                <option value="hired">Hired</option>
+              </select>
+            </div>
           </div>
 
           <button
@@ -86,7 +127,10 @@ const ApplicantDetailsModal = ({ application, onClose }) => {
           <Section title="Professional">
             <div className="grid sm:grid-cols-3 gap-4">
               <Info label="Headline" value={professional?.headline} />
-              <Info label="Current Role" value={professional?.currentRole} />
+              <Info
+                label="Current Role"
+                value={professional?.currentRole}
+              />
               <Info
                 label="Experience"
                 value={professional?.yearsOfExperience}

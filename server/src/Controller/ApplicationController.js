@@ -65,4 +65,34 @@ const getJobsWithApplications = async(req, res) => {
     }
 }
 
-module.exports = { getApplications, getJobsWithApplications };
+const updateStatus = async (req, res) => {
+    try{
+        const { applicationId, status } = req.body;
+
+        const application = await Application.findById(applicationId);
+
+        if(!application){
+            return res.status(404).json({
+                success: false,
+                message: "Application not found"
+            });
+        }
+
+        application.status = status;
+        await application.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Application status updated successfully",
+            application: application
+        });
+
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+    }
+}
+
+module.exports = { getApplications, getJobsWithApplications, updateStatus };
