@@ -14,6 +14,8 @@ import MyResume from './Pages/MyResume'
 import ResumeBuilder from './Pages/ResumeBuilder'
 import UploadResume from './Components/UploadResume'
 import CandidateApplications from './Pages/CandidateApplications'
+import Applications from './Pages/Applications'
+
 
 function App() {
   return (
@@ -32,6 +34,7 @@ function App() {
       <Route path='/resume-builder' element={<ResumeBuilder/>} />
       <Route path='/candidate/applications' element={<ProtectedRoutes><CandidateApplications/></ProtectedRoutes>} />
       <Route path='/jobs/:id' element={<ProtectedRoutes><JobCreation/></ProtectedRoutes>} />
+      <Route path='/recruiter/applications' element={<ProtectedRoutes><Applications/></ProtectedRoutes>} />
 
     </Routes>
   )
