@@ -77,6 +77,8 @@ const CreateAssessmentModal = ({ job, onClose, onBack, onFinish }) => {
         difficulty,
         creationMethod,
         passingScore
+    }, {
+      withCredentials: true,
     });
     console.log(assessmentAI.data);
     onFinish(assessmentAI.data.assessment);
