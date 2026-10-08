@@ -65,6 +65,12 @@ const assessmentSchema = new mongoose.Schema(
       required: true,
     },
 
+    difficulty: {
+        type: String,
+        enum: ['Easy', 'Medium', 'Hard'],
+        default: 'Medium'
+    },
+
     questions: {
       type: [questionSchema],
       default: [],

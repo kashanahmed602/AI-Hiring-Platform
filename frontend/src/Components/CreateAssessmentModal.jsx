@@ -10,6 +10,7 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
+import axios from 'axios';
 
 const CreateAssessmentModal = ({ job, onClose, onBack, onFinish }) => {
   const [mode, setMode] = useState("ai");
@@ -20,6 +21,9 @@ const CreateAssessmentModal = ({ job, onClose, onBack, onFinish }) => {
   const [duration, setDuration] = useState(30);
   const [description, setDescription] = useState("");
   const [questions, setQuestions] = useState([]);
+  const [difficulty, setDifficulty] = useState("Medium");
+  const [passingScore, setPassingScore] = useState(60);
+  const [creationMethod, setCreationMethod] = useState("ai");
   const [showManualEditor, setShowManualEditor] = useState(false);
 
   const addQuestion = () => {
@@ -60,9 +64,27 @@ const CreateAssessmentModal = ({ job, onClose, onBack, onFinish }) => {
     setQuestions((prev) => prev.filter((q) => q.id !== id));
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+
+    try{
     // UI only: AI generation API baad mein connect hogi.
-    alert("AI question generation API abhi connect nahi hai.");
+    const assessmentAI = await axios.post('http://localhost:3001/api/v1/createAssessment', {
+        jobId: job._id,
+        title,
+        description,
+        duration,
+        questionCount,
+        difficulty,
+        creationMethod,
+        passingScore
+    });
+    console.log(assessmentAI.data);
+    onFinish(assessmentAI.data.assessment);
+
+    }catch(error){
+        
+        alert(error.message);
+    }
   };
 
   const handlePublish = () => {
@@ -176,6 +198,39 @@ const CreateAssessmentModal = ({ job, onClose, onBack, onFinish }) => {
                   <option value={45}>45 Minutes</option>
                   <option value={60}>60 Minutes</option>
                 </select>
+              </div>
+
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+
+              <div>
+                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <FileQuestion size={16} className="text-violet-600" />
+                  Difficulty Level
+                </label>
+                <select
+                  value={difficulty}
+                  onChange={(e) => setDifficulty(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-violet-400"
+                >
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                  <FileQuestion size={16} className="text-violet-600" />
+                    Passing Score (%)
+                </label>
+                <input
+                  type="number"
+                  value={passingScore}
+                  onChange={(e) => setPassingScore(Number(e.target.value))}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-violet-400"
+                />
               </div>
             </div>
 
