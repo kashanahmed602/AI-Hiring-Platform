@@ -62,4 +62,73 @@ const createAssessmentQuestions = async (req, res) => {
     }
 }
 
-module.exports = { createAssessmentQuestions };
+const getAssessments = async (req, res) => {
+    try{
+        const recruiterId = req.user.id;
+        const recruiter = await Recruiter.findById(recruiterId);
+        if(!recruiter || recruiter.role !== 'recruiter'){
+            return res.status(403).json({
+                success: false,
+                message: 'Access Denied'
+            });
+        }
+
+        const assessments = await Assessment.find({ recruiterId: recruiterId }).populate('jobId', 'Title');
+        if(!assessments){
+            return res.status(404).json({
+                success: false,
+                message: 'No Assessments Found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Assessments Fetched Successfully',
+            assessments: assessments
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: 'Internal Server Error'
+        });
+    }
+}
+
+const statusUpdate = async (req, res) => {
+    try{
+        const { assessmentId, status } = req.body;
+
+        const recruiter = await Recruiter.findById(req.user.id);
+          if(!recruiter || recruiter.role !== 'recruiter'){
+            return res.status(403).json({
+                success: false,
+                message: 'Access Denied'
+            });
+        }
+
+        const assessments = await Assessment.findById(assessmentId);
+        if(!assessments || assessments.recruiterId.toString() !== recruiter._id.toString()){
+            return res.status(404).json({
+                success: false,
+                message: 'No Assessments Found'
+            });
+        }
+
+        assessments.status = status;
+        await assessments.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Assessment Status Updated Successfully",
+            assessment: assessments
+        });
+        
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+module.exports = { createAssessmentQuestions, getAssessments, statusUpdate };
