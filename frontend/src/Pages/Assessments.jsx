@@ -61,7 +61,7 @@ const Assessments = () => {
   }, []);
 
   // UI-only delete
-  const handleDelete = (event, assessmentId) => {
+  const handleDelete = async (event, assessmentId) => {
     event.stopPropagation();
 
     const confirmed = window.confirm(
@@ -70,9 +70,20 @@ const Assessments = () => {
 
     if (!confirmed) return;
 
-    setAssessmentData((prev) =>
-      prev.filter((assessment) => assessment._id !== assessmentId)
-    );
+    try{
+        const response = await axios.delete(
+            `http://localhost:3001/api/v1/recruiter/assessments/delete`,
+            {
+                assessmentId:  assessmentId ,
+                withCredentials: true
+            }
+        );
+
+        alert("Assessment Deleted Successfully");
+        window.location.reload();
+    }catch(error){
+        alert(error.message);
+    }
 
     setSelectedAssessment((prev) =>
       prev?._id === assessmentId ? null : prev

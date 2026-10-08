@@ -131,4 +131,38 @@ const statusUpdate = async (req, res) => {
     }
 }
 
-module.exports = { createAssessmentQuestions, getAssessments, statusUpdate };
+const deleteAssessment = async (req, res) => {
+    try{
+        const { assessmentId } = req.body;
+
+         const recruiter = await Recruiter.findById(req.user.id);
+          if(!recruiter || recruiter.role !== 'recruiter'){
+            return res.status(403).json({
+                success: false,
+                message: 'Access Denied'
+            });
+        }
+
+        const assessments = await Assessment.findById(assessmentId);
+        if(!assessments || assessments.recruiterId.toString() !== recruiter._id.toString()){
+            return res.status(404).json({
+                success: false,
+                message: 'No Assessments Found'
+            });
+        }
+
+        await assessments.remove();
+
+        res.status(200).json({
+            success: true,
+            message: "Assessment Deleted Successfully"
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+}
+
+module.exports = { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment };
