@@ -3,8 +3,6 @@ import { X, BriefcaseBusiness, MapPin, ArrowRight } from "lucide-react";
 import CreateAssessmentModal from "./CreateAssessmentModal";
 import axios from 'axios';
 
-// Temporary sample jobs — baad mein API se replace hongi.
-
 
 const AssessmentJobsModal = ({ isOpen, onClose }) => {
     const [selectedJob, setSelectedJob] = useState(null);
