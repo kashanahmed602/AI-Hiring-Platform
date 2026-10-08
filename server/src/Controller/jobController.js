@@ -324,4 +324,37 @@ const applyForJob = async (req, res) => {
     }
 }
 
-module.exports = {createJob, getJobs, deleteJob, updateJob, applyForJob};
+const getJobsRecruiter = async (req, res) => {
+    try{
+        const user = await Recruiter.findById(req.user.id);
+
+        if(!user || user.role !== 'recruiter'){
+            return res.status(403).json({
+                success: false,
+                message: 'Access Denied'
+            });
+        }
+
+        const jobs = await Job.find({ CreatedBy: req.user.id }).sort({ createdAt: -1 });
+
+        if(!jobs || jobs.length === 0){
+            return res.status(404).json({
+                success: false,
+                message: "No Jobs Found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Jobs Fetched Successfully",
+            jobs: jobs
+        })
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+}
+
+module.exports = {createJob, getJobs, deleteJob, updateJob, applyForJob, getJobsRecruiter};
