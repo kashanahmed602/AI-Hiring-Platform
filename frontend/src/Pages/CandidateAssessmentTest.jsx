@@ -8,6 +8,7 @@ import {
   Send,
   AlertCircle,
 } from "lucide-react";
+import axios from 'axios';
 
 const CandidateAssessmentTest = ({ assessment, onExit }) => {
   const questions = assessment?.questions || [];
@@ -103,9 +104,23 @@ const CandidateAssessmentTest = ({ assessment, onExit }) => {
 
   const result = submitted ? calculateResult() : null;
 
-  const submitTest = () => {
-    setSubmitted(true);
-    setShowSubmitConfirm(false);
+  const submitTest = async (id) => {
+    try{
+        // setSubmitted(true);
+        // setShowSubmitConfirm(false);
+
+        await axios.post('http://localhost:3001/api/v1/candidate/assessments/submit',{
+            assessmentId: id,
+            answers: answers,
+            status: 'Completed'
+        },{
+            withCredentials: true
+        });
+        alert('Assessment Submitted Successfully');
+    }catch(error){
+        console.error('Error submitting assessment:', error);
+        alert('Failed to submit assessment');
+    }
   };
 
   // Result screen
@@ -412,7 +427,7 @@ const CandidateAssessmentTest = ({ assessment, onExit }) => {
               </button>
 
               <button
-                onClick={submitTest}
+                onClick={() => submitTest(assessment._id)}
                 className="flex-1 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
               >
                 Submit

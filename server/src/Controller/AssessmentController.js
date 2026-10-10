@@ -4,6 +4,8 @@ const Job = require('../Models/jobModel');
 const createAssessment = require('../Utils/AssessmentCreate');
 const Candidate = require('../Models/userModel');
 const Application = require('../Models/ApplicatonModel');
+const checkAssessment = require('../Utils/AssessmentCheck');
+const AttemptedAssessment = require('../Models/AttemptedAssessmentModel');
 
 const createAssessmentQuestions = async (req, res) => {
     try {
@@ -207,4 +209,60 @@ const getAssessmentForCandidate = async (req, res) => {
     }
 }
 
-module.exports = { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment, getAssessmentForCandidate };
+const submitAssessment = async (req, res) => {
+    try{
+        const { assessmentId, answers, status } = req.body;
+        const candidateId = req.user.id;
+
+        const candidate = await Candidate.findById(candidateId);
+        if(!candidate || candidate.role !== 'candidate'){
+            return res.status(403).json({
+                success: false,
+                message: 'Access Denied'
+            });
+        }
+        
+        const assessment = await Assessment.findById(assessmentId);
+        if(!assessment || assessment.status !== 'published'){
+            return res.status(404).json({
+                success: false,
+                message: 'Assessment Not Found'
+            });
+        }
+
+        const result = await checkAssessment(assessment.questions, answers, assessment.passingScore);
+        if(!result){
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to evaluate assessment'
+            });
+        }
+
+        const attemptedAssessment = new AttemptedAssessment({
+            assessmentId: assessment._id,
+            CandidateId: candidate._id,
+            score: result.score,
+            totalmarks: result.totalMarks,
+            percentage: result.percentage,
+            status: status,
+            result: result.result,
+            answers: result.answers
+        });
+
+        await attemptedAssessment.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Assessment Submitted Successfully',
+            attemptedAssessment: attemptedAssessment
+        });
+
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+module.exports = { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment, getAssessmentForCandidate, submitAssessment };
