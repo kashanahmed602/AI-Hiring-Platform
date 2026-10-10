@@ -9,93 +9,98 @@ import {
   LockKeyhole,
   CheckCircle2,
 } from "lucide-react";
-import axios from 'axios';
-
-const demoAssessments = [
-  {
-    _id: "1",
-    title: "Frontend Developer Assessment",
-    jobTitle: "React Developer",
-    duration: 30,
-    questionCount: 20,
-    difficulty: "Medium",
-    status: "published",
-    applicationStatus: "shortlisted",
-    hasApplied: true,
-  },
-  {
-    _id: "2",
-    title: "Backend Developer Assessment",
-    jobTitle: "Node.js Developer",
-    duration: 45,
-    questionCount: 25,
-    difficulty: "Hard",
-    status: "published",
-    applicationStatus: "pending",
-    hasApplied: true,
-  },
-  {
-    _id: "3",
-    title: "Full Stack Assessment",
-    jobTitle: "Full Stack Developer",
-    duration: 40,
-    questionCount: 20,
-    difficulty: "Medium",
-    status: "published",
-    applicationStatus: "not-applied",
-    hasApplied: false,
-  },
-];
+import axios from "axios";
+import CandidateAssessmentTest from "./CandidateAssessmentTest";
 
 const CandidateAssessments = () => {
   const [search, setSearch] = useState("");
   const [assessmentsData, setAssessmentsData] = useState([]);
   const [activeTab, setActiveTab] = useState("all");
+  const [activeAssessment, setActiveAssessment] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchAssessments = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3001/api/v1/candidate/assessments",
+          { withCredentials: true }
+        );
 
-      const fetchAssessments = async () => {
-          try{
-              const response = await axios.get('http://localhost:3001/api/v1/candidate/assessments', {
-                  withCredentials: true,
-                });
-                
-                setAssessmentsData(response.data.assessments);
-                console.log('Assessment : ', response.data.assessments);
-            }catch(error){
-                alert(error.message);
-            }
-        }
+        setAssessmentsData(response.data.assessments || []);
+        console.log("Assessments:", response.data.assessments);
+      } catch (error) {
+        console.error(
+          error.response?.data || error.message
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        fetchAssessments();
-    },[])
+    fetchAssessments();
+  }, []);
 
-  // UI demo: shortlisted candidates can start the assessment
+  const getJobTitle = (assessment) =>
+    assessment.jobId?.Title ||
+    assessment.jobTitle ||
+    "Job";
+
+  // The backend endpoint should enforce application and shortlist eligibility.
+  // If it returns eligibility fields, use those too.
+  const isAssessmentEligible = (assessment) => {
+    const applicationAllowsAccess =
+      assessment.hasApplied === undefined ||
+      (assessment.hasApplied === true &&
+        (assessment.applicationStatus === undefined ||
+          assessment.applicationStatus === "shortlisted"));
+
+    return (
+      assessment.status === "published" &&
+      applicationAllowsAccess
+    );
+  };
+
   const filteredAssessments = assessmentsData.filter((assessment) => {
+    const title = (assessment.title || "").toLowerCase();
+    const jobTitle = getJobTitle(assessment).toLowerCase();
+    const searchText = search.toLowerCase();
+
     const matchesSearch =
-      assessment.title.toLowerCase().includes(search.toLowerCase()) ||
-      assessment.jobTitle.toLowerCase().includes(search.toLowerCase());
+      title.includes(searchText) ||
+      jobTitle.includes(searchText);
+
+    const isEligible = isAssessmentEligible(assessment);
 
     const matchesTab =
       activeTab === "all" ||
-      (activeTab === "available" &&
-        assessment.hasApplied &&
-        assessment.applicationStatus === "shortlisted") ||
-      (activeTab === "locked" &&
-        (!assessment.hasApplied ||
-          assessment.applicationStatus !== "shortlisted"));
+      (activeTab === "available" && isEligible) ||
+      (activeTab === "locked" && !isEligible);
 
     return matchesSearch && matchesTab;
   });
 
+  const availableCount = assessmentsData.filter(
+    isAssessmentEligible
+  ).length;
+
   const handleStart = (assessment) => {
-    alert(`Selected: ${assessment.title}\nAssessment UI will be added next.`);
+    setActiveAssessment(assessment);
   };
+
+  // Show the test page after clicking Start Assessment
+  if (activeAssessment) {
+    return (
+      <CandidateAssessmentTest
+        assessment={activeAssessment}
+        onExit={() => setActiveAssessment(null)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-7xl">
-
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3">
@@ -119,35 +124,23 @@ const CandidateAssessments = () => {
           <SummaryCard
             icon={ClipboardCheck}
             label="Total Assessments"
-            value={demoAssessments.length}
+            value={assessmentsData.length}
           />
 
           <SummaryCard
             icon={CheckCircle2}
             label="Available to Start"
-            value={
-              demoAssessments.filter(
-                (a) =>
-                  a.hasApplied &&
-                  a.applicationStatus === "shortlisted"
-              ).length
-            }
+            value={availableCount}
           />
 
           <SummaryCard
             icon={LockKeyhole}
             label="Not Available"
-            value={
-              demoAssessments.filter(
-                (a) =>
-                  !a.hasApplied ||
-                  a.applicationStatus !== "shortlisted"
-              ).length
-            }
+            value={assessmentsData.length - availableCount}
           />
         </div>
 
-        {/* Search */}
+        {/* Search and Filters */}
         <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4">
           <div className="relative">
             <Search
@@ -158,13 +151,12 @@ const CandidateAssessments = () => {
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(event) => setSearch(event.target.value)}
               placeholder="Search assessments or job titles..."
               className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
             />
           </div>
 
-          {/* Tabs */}
           <div className="mt-4 flex flex-wrap gap-2">
             {[
               { id: "all", label: "All Assessments" },
@@ -186,21 +178,22 @@ const CandidateAssessments = () => {
           </div>
         </div>
 
-        {/* Assessment Cards */}
-        {filteredAssessments.length > 0 ? (
+        {/* Loading */}
+        {loading ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-slate-500">
+            Loading assessments...
+          </div>
+        ) : filteredAssessments.length > 0 ? (
+          /* Assessment Cards */
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {filteredAssessments.map((assessment) => {
-              const isEligible =
-                assessment.hasApplied &&
-                assessment.applicationStatus === "shortlisted" &&
-                assessment.status === "published";
+              const isEligible = isAssessmentEligible(assessment);
 
               return (
                 <div
                   key={assessment._id}
                   className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-1 hover:border-violet-200 hover:shadow-md"
                 >
-                  {/* Card Header */}
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
                       <FileQuestion size={22} />
@@ -217,22 +210,24 @@ const CandidateAssessments = () => {
                     </span>
                   </div>
 
-                  {/* Title */}
                   <h2 className="text-lg font-bold text-slate-900">
-                    {assessment.jobId.Title}
+                    {assessment.title}
                   </h2>
 
                   <p className="mt-2 flex items-center gap-2 text-sm text-slate-500">
                     <BriefcaseBusiness size={16} />
-                    {assessment.jobTitle}
+                    {getJobTitle(assessment)}
                   </p>
 
-                  {/* Details */}
                   <div className="my-5 grid grid-cols-2 gap-3 border-y border-slate-100 py-4">
                     <Detail
                       icon={FileQuestion}
                       label="Questions"
-                      value={assessment.questionCount}
+                      value={
+                        assessment.questionCount ??
+                        assessment.questions?.length ??
+                        0
+                      }
                     />
 
                     <Detail
@@ -246,7 +241,7 @@ const CandidateAssessments = () => {
                         Difficulty
                       </p>
                       <p className="mt-1 text-sm font-semibold text-slate-700">
-                        {assessment.difficulty}
+                        {assessment.difficulty || "N/A"}
                       </p>
                     </div>
                   </div>
@@ -261,31 +256,24 @@ const CandidateAssessments = () => {
                   >
                     {isEligible ? (
                       <div className="flex gap-2">
-                        <CheckCircle2
-                          size={18}
-                          className="shrink-0"
-                        />
+                        <CheckCircle2 size={18} className="shrink-0" />
                         <p>
-                          You are shortlisted. You can start this
-                          assessment.
+                          You are eligible to start this assessment.
                         </p>
+                      </div>
+                    ) : assessment.status !== "published" ? (
+                      <div className="flex gap-2">
+                        <LockKeyhole size={18} className="shrink-0" />
+                        <p>This assessment is not published.</p>
                       </div>
                     ) : !assessment.hasApplied ? (
                       <div className="flex gap-2">
-                        <LockKeyhole
-                          size={18}
-                          className="shrink-0"
-                        />
-                        <p>
-                          You have not applied for this job.
-                        </p>
+                        <LockKeyhole size={18} className="shrink-0" />
+                        <p>You have not applied for this job.</p>
                       </div>
                     ) : (
                       <div className="flex gap-2">
-                        <LockKeyhole
-                          size={18}
-                          className="shrink-0"
-                        />
+                        <LockKeyhole size={18} className="shrink-0" />
                         <p>
                           Your application is not shortlisted yet.
                         </p>
@@ -293,7 +281,6 @@ const CandidateAssessments = () => {
                     )}
                   </div>
 
-                  {/* Button */}
                   <button
                     disabled={!isEligible}
                     onClick={() => handleStart(assessment)}
@@ -321,13 +308,12 @@ const CandidateAssessments = () => {
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-16 text-center">
-            <Search
-              size={35}
-              className="mx-auto text-slate-300"
-            />
+            <Search size={35} className="mx-auto text-slate-300" />
+
             <h3 className="mt-4 font-semibold text-slate-900">
               No assessments found
             </h3>
+
             <p className="mt-2 text-sm text-slate-500">
               Try another search or change the selected filter.
             </p>
@@ -359,6 +345,7 @@ const Detail = ({ icon: Icon, label, value }) => (
       <Icon size={15} />
       <span className="text-xs">{label}</span>
     </div>
+
     <p className="mt-1 text-sm font-semibold text-slate-800">
       {value}
     </p>
