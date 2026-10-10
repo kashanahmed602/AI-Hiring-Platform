@@ -16,6 +16,7 @@ import UploadResume from './Components/UploadResume'
 import CandidateApplications from './Pages/CandidateApplications'
 import Applications from './Pages/Applications'
 import Assessments from './Pages/Assessments'
+import CandidateAssessments from './Pages/CandidateAssessments'
 
 
 function App() {
@@ -37,6 +38,7 @@ function App() {
       <Route path='/jobs/:id' element={<ProtectedRoutes><JobCreation/></ProtectedRoutes>} />
       <Route path='/recruiter/applications' element={<ProtectedRoutes><Applications/></ProtectedRoutes>} />
       <Route path='/recruiter/assessments' element={<ProtectedRoutes><Assessments/></ProtectedRoutes>} />
+      <Route path='/candidate/assessments' element={<ProtectedRoutes><CandidateAssessments/></ProtectedRoutes>} />
 
     </Routes>
   )

@@ -2,6 +2,8 @@ const Assessment = require('../Models/AssesmentModel');
 const Recruiter = require('../Models/recruiterModel');
 const Job = require('../Models/jobModel');
 const createAssessment = require('../Utils/AssessmentCreate');
+const Candidate = require('../Models/userModel');
+const Application = require('../Models/ApplicatonModel');
 
 const createAssessmentQuestions = async (req, res) => {
     try {
@@ -165,4 +167,44 @@ const deleteAssessment = async (req, res) => {
     }
 }
 
-module.exports = { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment };
+const getAssessmentForCandidate = async (req, res) => {
+    try{
+        // const { assessmentId } = req.body;   
+        const candidateId = req.user.id;
+
+        const candidate = await Candidate.findById(candidateId);
+        if(!candidate || candidate.role !== 'candidate'){
+            return res.status(403).json({
+                success: false,
+                message: 'Access Denied'
+            });
+        }
+
+        const application = await Application.find({ candidateId: candidateId, status: 'shortlisted'}).select('jobId');
+      
+
+        const jobsIds = application.map((app) => app.jobId);
+
+        const assessment = await Assessment.find({jobId: { $in: jobsIds}, status: 'published'}).populate('jobId', 'Title').select('-questions.correctAnswer');
+        // if(!assessment || assessment.length === 0){
+        //     return res.status(404).json({
+        //         success: false,
+        //         message: 'No Assessments Found'
+        //     });
+        // }
+
+        res.status(200).json({
+            success: true,
+            message: 'Assessments Fetched Successfully',
+            assessments: assessment
+        });
+        
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+module.exports = { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment, getAssessmentForCandidate };
