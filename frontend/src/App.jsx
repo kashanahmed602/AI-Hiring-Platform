@@ -17,7 +17,9 @@ import CandidateApplications from './Pages/CandidateApplications'
 import Applications from './Pages/Applications'
 import Assessments from './Pages/Assessments'
 import CandidateAssessments from './Pages/CandidateAssessments'
-import CandidateAssessmentTest from './Pages/CandidateAssessmentTest';
+import CandidateAssessmentTest from './Pages/CandidateAssessmentTest'
+import AssessmentResults from './Pages/AssessmentResults'
+import AssessmentResultDetails from './Pages/AssessmentResultDetails';
 
 function App() {
   return (
@@ -40,7 +42,8 @@ function App() {
       <Route path='/recruiter/assessments' element={<ProtectedRoutes><Assessments/></ProtectedRoutes>} />
       <Route path='/candidate/assessments' element={<ProtectedRoutes><CandidateAssessments/></ProtectedRoutes>} />
       <Route path='/candidate/assessments/test' element={<ProtectedRoutes><CandidateAssessmentTest/></ProtectedRoutes>} />
-
+      <Route path='/candidate/assessments/results' element={<ProtectedRoutes><AssessmentResults/></ProtectedRoutes>} />
+      <Route path='/candidate/assessments/results/:id' element={<ProtectedRoutes><AssessmentResultDetails/></ProtectedRoutes>} />
     </Routes>
   )
 }

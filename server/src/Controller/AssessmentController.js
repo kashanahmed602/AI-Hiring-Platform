@@ -265,4 +265,37 @@ const submitAssessment = async (req, res) => {
     }
 }
 
-module.exports = { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment, getAssessmentForCandidate, submitAssessment };
+const getAssessmentResults = async (req, res) => {
+    try{
+        const recruiterId = req.user.id;
+        const recruiter = await Recruiter.findById(recruiterId);
+        if(!recruiter || recruiter.role !== 'recruiter'){
+            return res.status(403).json({
+                success: false,
+                message: 'Access Denied'
+            });
+        }
+
+        const assessmentResults = await AttemptedAssessment.find({}).populate('assessmentId', 'questions title').populate('CandidateId', 'resume.parsedData.personal.fullName resume.parsedData.personal.email');
+        if(!assessmentResults || assessmentResults.length === 0){
+            return res.status(404).json({
+                success: false,
+                message: 'No Assessment Results Found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Assessment Results Fetched Successfully',
+            assessmentResults: assessmentResults
+        });
+
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+module.exports = { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment, getAssessmentForCandidate, submitAssessment, getAssessmentResults };

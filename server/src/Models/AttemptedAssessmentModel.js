@@ -11,7 +11,7 @@ const attemptedAssessmentSchema = new mongoose.Schema(
 
     CandidateId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Candidate",
       required: true,
     },
 

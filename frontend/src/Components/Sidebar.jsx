@@ -132,6 +132,13 @@ const Sidebar = ({
       label: "Assessments",
       path: "/recruiter/assessments",
     },
+
+    {
+      icon: Target,
+      label: "Assessment Results",
+      path: "/candidate/assessments/results",
+    },
+
     {
       icon: Mic2,
       label: "Interviews",
