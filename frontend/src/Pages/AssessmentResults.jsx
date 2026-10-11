@@ -225,6 +225,7 @@ const AssessmentResults = () => {
                     <th className="px-5 py-4 font-semibold">Candidate</th>
                     <th className="px-5 py-4 font-semibold">Assessment</th>
                     <th className="px-5 py-4 font-semibold">Score</th>
+                    <th className="px-5 py-4 font-semibold">Status</th>
                     <th className="px-5 py-4 font-semibold">Submitted</th>
                     <th className="px-5 py-4 text-right font-semibold">
                       Action
@@ -279,6 +280,12 @@ const AssessmentResults = () => {
                               Not available
                             </span>
                           )}
+                        </td>
+
+                        <td className= "px-5 py-4">
+                            <span className={`inline-flex rounded-full px-3 py-1 font-semibold ${result.result === "Pass" ? "bg-green-50 text-green-700" : result.result === "Fail" ? "bg-red-50 text-red-700" : "bg-yellow-50 text-yellow-700"}`}>
+                              {result.result || "Pending"}
+                            </span>
                         </td>
 
                         <td className="px-5 py-4 text-slate-600">
