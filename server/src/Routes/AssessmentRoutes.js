@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment, getAssessmentForCandidate, submitAssessment, getAssessmentResults } = require('../Controller/AssessmentController');
+const { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment, getAssessmentForCandidate, submitAssessment, getAssessmentResults, getAssessmentResultForSpecificJob } = require('../Controller/AssessmentController');
 const Protect = require('../Middleware/authMiddleware');
 
 router.post('/createAssessment', Protect, createAssessmentQuestions);
@@ -11,6 +11,7 @@ router.delete('/recruiter/assessments/delete', Protect, deleteAssessment);
 router.get('/candidate/assessments', Protect, getAssessmentForCandidate);
 router.post('/candidate/assessments/submit', Protect, submitAssessment);
 router.get('/recruiter/assessments/results', Protect, getAssessmentResults);
+router.get('/assessments/results', Protect, getAssessmentResultForSpecificJob);
 
 
 module.exports = router;

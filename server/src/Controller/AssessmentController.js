@@ -298,4 +298,100 @@ const getAssessmentResults = async (req, res) => {
     }
 }
 
-module.exports = { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment, getAssessmentForCandidate, submitAssessment, getAssessmentResults };
+const getAssessmentResultForSpecificJob = async (req, res) => {
+  try {
+    const recruiterId = req.user.id;
+
+    // 1. Verify recruiter
+    const recruiter = await Recruiter.findById(recruiterId);
+
+    if (!recruiter || recruiter.role !== "recruiter") {
+      return res.status(403).json({
+        success: false,
+        message: "Access Denied",
+      });
+    }
+
+    // 2. Get assessment ID
+    const { assessmentId } = req.query;
+
+    if (!assessmentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Assessment ID is required",
+      });
+    }
+
+    // 3. Verify assessment belongs to this recruiter
+    const assessment = await Assessment.findOne({
+      _id: assessmentId,
+      recruiterId,
+    });
+
+    if (!assessment) {
+      return res.status(404).json({
+        success: false,
+        message: "Assessment not found",
+      });
+    }
+
+    // 4. Fetch all candidates who attempted this assessment
+    const assessmentResults = await AttemptedAssessment.find({
+      assessmentId: assessment._id,
+    })
+      .populate("assessmentId", "title questions jobId")
+      .populate(
+        "CandidateId",
+        "resume.parsedData.personal.fullName resume.parsedData.personal.email"
+      )
+      .sort({ createdAt: -1 });
+
+    // 5. Match each candidate with their job application
+    const resultsWithApplication = await Promise.all(
+      assessmentResults.map(async (attempt) => {
+        const candidateId = attempt.CandidateId?._id;
+        const jobId = assessment.jobId;
+
+        let application = null;
+
+        if (candidateId && jobId) {
+          application = await Application.findOne({
+            candidateId,
+            jobId,
+          }).select("_id status");
+        }
+
+        return {
+          ...attempt.toObject(),
+
+          // Application details
+          applicationId: application?._id || null,
+
+          // Hiring status from Application model
+          applicationStatus: application?.status || "Applied",
+        };
+      })
+    );
+
+    console.log("Results with Application:", resultsWithApplication);
+
+    // 6. Send response
+    return res.status(200).json({
+      success: true,
+      message: "Assessment Results Fetched Successfully",
+      assessmentResults: resultsWithApplication,
+    });
+  } catch (error) {
+    console.error(
+      "Get Assessment Results Error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { createAssessmentQuestions, getAssessments, statusUpdate, deleteAssessment, getAssessmentForCandidate, submitAssessment, getAssessmentResults, getAssessmentResultForSpecificJob };

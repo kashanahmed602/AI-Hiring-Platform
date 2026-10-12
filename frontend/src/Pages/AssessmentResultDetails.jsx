@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import {
   ArrowLeft,
   UserRound,
@@ -9,13 +10,19 @@ import {
   XCircle,
   Clock3,
 } from "lucide-react";
+import axios from "axios";
 
 const AssessmentResultDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Existing data from AssessmentResults.jsx
+  // Existing result data
   const result = location.state?.result;
+
+  // Hiring status: frontend only, no API
+  const [candidateStatus, setCandidateStatus] = useState(
+    result?.candidateStatus || "Shortlisted"
+  );
 
   if (!result) {
     return (
@@ -58,7 +65,7 @@ const AssessmentResultDetails = () => {
     );
 
   const formatDate = (date) => {
-    if (date == null) return "null";
+    if (date == null) return "N/A";
 
     const parsedDate = new Date(date);
 
@@ -71,6 +78,30 @@ const AssessmentResultDetails = () => {
 
   const isPassed = result.result === "Pass";
   const isFailed = result.result === "Fail";
+
+  const statusUpdate = async (id, status) => {
+    try{
+        console.log(id);
+        setCandidateStatus(status);
+        const response = await axios.put('http://localhost:3001/api/v1/applications-status-update', {
+            id,
+            status
+        }, {
+            withCredentials: true
+        })
+
+        alert('status updated successfully');
+    }catch(error){
+        alert(error.message);
+    }
+  }
+
+  const statusStyles = {
+    Shortlisted: "border-violet-200 bg-violet-50 text-violet-700",
+    interviewed: "border-blue-200 bg-blue-50 text-blue-700",
+    Rejected: "border-red-200 bg-red-50 text-red-700",
+    Hired: "border-green-200 bg-green-50 text-green-700",
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
@@ -92,7 +123,7 @@ const AssessmentResultDetails = () => {
             </p>
 
             <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-              {assessment.title ?? "null"}
+              {assessment.title ?? "N/A"}
             </h1>
 
             <p className="mt-2 text-sm text-slate-500">
@@ -109,7 +140,7 @@ const AssessmentResultDetails = () => {
                 : "bg-amber-100 text-amber-700"
             }`}
           >
-            {result.result ?? "null"}
+            {result.result ?? "N/A"}
           </span>
         </div>
 
@@ -124,6 +155,7 @@ const AssessmentResultDetails = () => {
               <h2 className="font-bold text-slate-900">
                 Candidate Information
               </h2>
+
               <p className="text-sm text-slate-500">
                 Details of the candidate who attempted this assessment
               </p>
@@ -134,21 +166,51 @@ const AssessmentResultDetails = () => {
             <div>
               <p className="text-sm text-slate-500">Full Name</p>
               <p className="mt-1 font-semibold text-slate-900">
-                {personal.fullName ?? "null"}
+                {personal.fullName ?? candidate.name ?? "N/A"}
               </p>
             </div>
 
             <div>
               <p className="text-sm text-slate-500">Email Address</p>
               <p className="mt-1 break-all font-medium text-slate-800">
-                {personal.email ?? "null"}
+                {personal.email ?? candidate.email ?? "N/A"}
               </p>
             </div>
 
             <div>
               <p className="text-sm text-slate-500">Attempt ID</p>
               <p className="mt-1 break-all text-sm text-slate-700">
-                {result._id ?? "null"}
+                {result._id ?? "N/A"}
+              </p>
+            </div>
+
+            {/* Hiring Status Dropdown */}
+            <div>
+              <label
+                htmlFor="candidate-hiring-status"
+                className="text-sm font-medium text-slate-600"
+              >
+                Candidate Hiring Status
+              </label>
+
+              <select
+                id="candidate-hiring-status"
+                value={candidateStatus}
+                onChange={(e) => statusUpdate(result.assessmentId._id, e.target.value)
+                }
+                className={`mt-1 w-full rounded-xl border px-3 py-2.5 text-sm font-semibold outline-none transition focus:ring-2 focus:ring-violet-200 ${
+                  statusStyles[candidateStatus] ||
+                  statusStyles.Shortlisted
+                }`}
+              >
+                <option value="Shortlisted">Shortlisted</option>
+                <option value="interviewed">Interviewed</option>
+                <option value="Rejected">Rejected</option>
+                <option value="Hired">Hired</option>
+              </select>
+
+              <p className="mt-1 text-xs text-slate-400">
+                UI only — not saved to the database
               </p>
             </div>
           </div>
@@ -163,7 +225,7 @@ const AssessmentResultDetails = () => {
             </div>
 
             <p className="text-3xl font-bold text-slate-900">
-              {result.percentage ?? "null"}%
+              {result.percentage ?? "N/A"}%
             </p>
           </div>
 
@@ -174,11 +236,11 @@ const AssessmentResultDetails = () => {
             </div>
 
             <p className="text-3xl font-bold text-slate-900">
-              {result.score ?? "null"}
+              {result.score ?? "N/A"}
             </p>
 
             <p className="mt-1 text-xs text-slate-500">
-              Total Marks: {result.totalMarks ?? "null"}
+              Total Marks: {result.totalMarks ?? "N/A"}
             </p>
           </div>
 
@@ -189,7 +251,7 @@ const AssessmentResultDetails = () => {
             </div>
 
             <p className="text-2xl font-bold text-slate-900">
-              {result.status ?? "null"}
+              {result.status ?? "N/A"}
             </p>
           </div>
 
@@ -210,7 +272,7 @@ const AssessmentResultDetails = () => {
           </div>
         </section>
 
-        {/* Questions */}
+        {/* Questions and Answers */}
         <section>
           <div className="mb-5">
             <h2 className="text-xl font-bold text-slate-900">
@@ -246,8 +308,7 @@ const AssessmentResultDetails = () => {
                 const correctAnswer = question.correctAnswer;
 
                 const marksAwarded = answer?.marksAwarded;
-                const maxMarks =
-                  answer?.maxMarks ?? question.marks;
+                const maxMarks = answer?.maxMarks ?? question.marks;
 
                 const hasMarks =
                   marksAwarded !== null &&
@@ -272,22 +333,21 @@ const AssessmentResultDetails = () => {
 
                         <div>
                           <h3 className="font-semibold leading-7 text-slate-900">
-                            {question.question ?? "null"}
+                            {question.question ?? "N/A"}
                           </h3>
 
                           <span className="mt-2 inline-block rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium uppercase text-slate-600">
-                            {question.type ?? "null"}
+                            {question.type ?? "N/A"}
                           </span>
                         </div>
                       </div>
 
                       <div className="shrink-0 rounded-xl bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700">
-                        {marksAwarded ?? "null"} / {maxMarks ?? "null"} marks
+                        {marksAwarded ?? "N/A"} / {maxMarks ?? "N/A"} marks
                       </div>
                     </div>
 
                     <div className="space-y-5 p-5">
-
                       {/* Options */}
                       {question.options?.length > 0 && (
                         <div>
@@ -355,7 +415,7 @@ const AssessmentResultDetails = () => {
                           </p>
 
                           <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-700">
-                            {candidateAnswer ?? "null"}
+                            {candidateAnswer ?? "N/A"}
                           </p>
                         </div>
 
@@ -366,7 +426,7 @@ const AssessmentResultDetails = () => {
                           </p>
 
                           <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-700">
-                            {correctAnswer ?? "null"}
+                            {correctAnswer ?? "N/A"}
                           </p>
                         </div>
                       </div>
@@ -389,7 +449,7 @@ const AssessmentResultDetails = () => {
                           <span className="text-slate-600">
                             Marks Awarded:{" "}
                             <strong className="text-slate-900">
-                              {marksAwarded ?? "null"} / {maxMarks ?? "null"}
+                              {marksAwarded ?? "N/A"} / {maxMarks ?? "N/A"}
                             </strong>
                           </span>
                         </div>
