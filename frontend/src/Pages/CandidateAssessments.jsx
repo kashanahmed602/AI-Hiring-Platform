@@ -28,9 +28,10 @@ const CandidateAssessments = () => {
         );
 
         setAssessmentsData(response.data.assessments || []);
-        console.log("Assessments:", response.data.assessments);
+        console.log("Fetched assessments:", response.data.assessments);
       } catch (error) {
         console.error(
+          "Fetch assessments error:",
           error.response?.data || error.message
         );
       } finally {
@@ -46,8 +47,10 @@ const CandidateAssessments = () => {
     assessment.jobTitle ||
     "Job";
 
-  // The backend endpoint should enforce application and shortlist eligibility.
-  // If it returns eligibility fields, use those too.
+  const isAssessmentCompleted = (assessment) =>
+    String(assessment.attemptStatus || "").toLowerCase() ===
+      "completed";
+
   const isAssessmentEligible = (assessment) => {
     const applicationAllowsAccess =
       assessment.hasApplied === undefined ||
@@ -57,12 +60,18 @@ const CandidateAssessments = () => {
 
     return (
       assessment.status === "published" &&
-      applicationAllowsAccess
+      applicationAllowsAccess &&
+      !isAssessmentCompleted(assessment)
     );
   };
 
   const filteredAssessments = assessmentsData.filter((assessment) => {
-    const title = (assessment.title || "").toLowerCase();
+    const title = (
+      assessment.title ||
+      assessment.Title ||
+      ""
+    ).toLowerCase();
+
     const jobTitle = getJobTitle(assessment).toLowerCase();
     const searchText = search.toLowerCase();
 
@@ -70,12 +79,13 @@ const CandidateAssessments = () => {
       title.includes(searchText) ||
       jobTitle.includes(searchText);
 
-    const isEligible = isAssessmentEligible(assessment);
+    const eligible = isAssessmentEligible(assessment);
+    const completed = isAssessmentCompleted(assessment);
 
     const matchesTab =
       activeTab === "all" ||
-      (activeTab === "available" && isEligible) ||
-      (activeTab === "locked" && !isEligible);
+      (activeTab === "available" && eligible) ||
+      (activeTab === "locked" && (!eligible || completed));
 
     return matchesSearch && matchesTab;
   });
@@ -84,11 +94,22 @@ const CandidateAssessments = () => {
     isAssessmentEligible
   ).length;
 
+  const completedCount = assessmentsData.filter(
+    isAssessmentCompleted
+  ).length;
+
   const handleStart = (assessment) => {
+    if (
+      isAssessmentCompleted(assessment) ||
+      !isAssessmentEligible(assessment)
+    ) {
+      return;
+    }
+
     setActiveAssessment(assessment);
   };
 
-  // Show the test page after clicking Start Assessment
+  // Open the assessment test
   if (activeAssessment) {
     return (
       <CandidateAssessmentTest
@@ -113,7 +134,7 @@ const CandidateAssessments = () => {
                 My Assessments
               </h1>
               <p className="mt-1 text-sm text-slate-500">
-                View your job assessments and track your eligibility.
+                View assessments, check your results and track your progress.
               </p>
             </div>
           </div>
@@ -134,9 +155,9 @@ const CandidateAssessments = () => {
           />
 
           <SummaryCard
-            icon={LockKeyhole}
-            label="Not Available"
-            value={assessmentsData.length - availableCount}
+            icon={FileQuestion}
+            label="Completed"
+            value={completedCount}
           />
         </div>
 
@@ -161,7 +182,7 @@ const CandidateAssessments = () => {
             {[
               { id: "all", label: "All Assessments" },
               { id: "available", label: "Available" },
-              { id: "locked", label: "Locked" },
+              { id: "locked", label: "Locked / Completed" },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -178,22 +199,23 @@ const CandidateAssessments = () => {
           </div>
         </div>
 
-        {/* Loading */}
+        {/* Assessment List */}
         {loading ? (
           <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center text-slate-500">
             Loading assessments...
           </div>
         ) : filteredAssessments.length > 0 ? (
-          /* Assessment Cards */
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {filteredAssessments.map((assessment) => {
-              const isEligible = isAssessmentEligible(assessment);
+              const eligible = isAssessmentEligible(assessment);
+              const completed = isAssessmentCompleted(assessment);
 
               return (
                 <div
                   key={assessment._id}
                   className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-1 hover:border-violet-200 hover:shadow-md"
                 >
+                  {/* Card Header */}
                   <div className="mb-4 flex items-start justify-between gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
                       <FileQuestion size={22} />
@@ -201,17 +223,25 @@ const CandidateAssessments = () => {
 
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        isEligible
+                        completed
                           ? "bg-emerald-50 text-emerald-700"
+                          : eligible
+                          ? "bg-blue-50 text-blue-700"
                           : "bg-amber-50 text-amber-700"
                       }`}
                     >
-                      {isEligible ? "Available" : "Locked"}
+                      {completed
+                        ? "Completed"
+                        : eligible
+                        ? "Available"
+                        : "Locked"}
                     </span>
                   </div>
 
                   <h2 className="text-lg font-bold text-slate-900">
-                    {assessment.title}
+                    {assessment.title ||
+                      assessment.Title ||
+                      "Assessment"}
                   </h2>
 
                   <p className="mt-2 flex items-center gap-2 text-sm text-slate-500">
@@ -219,6 +249,7 @@ const CandidateAssessments = () => {
                     {getJobTitle(assessment)}
                   </p>
 
+                  {/* Assessment Details */}
                   <div className="my-5 grid grid-cols-2 gap-3 border-y border-slate-100 py-4">
                     <Detail
                       icon={FileQuestion}
@@ -233,7 +264,7 @@ const CandidateAssessments = () => {
                     <Detail
                       icon={Clock3}
                       label="Duration"
-                      value={`${assessment.duration} min`}
+                      value={`${assessment.duration ?? 0} min`}
                     />
 
                     <div className="col-span-2">
@@ -246,69 +277,136 @@ const CandidateAssessments = () => {
                     </div>
                   </div>
 
-                  {/* Eligibility Message */}
-                  <div
-                    className={`mb-4 rounded-xl p-3 text-sm ${
-                      isEligible
-                        ? "bg-emerald-50 text-emerald-800"
-                        : "bg-amber-50 text-amber-800"
-                    }`}
-                  >
-                    {isEligible ? (
-                      <div className="flex gap-2">
-                        <CheckCircle2 size={18} className="shrink-0" />
-                        <p>
-                          You are eligible to start this assessment.
-                        </p>
+                  {/* Completed Result */}
+                  {completed ? (
+                    <div className="mt-auto rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <div className="mb-3 flex items-center gap-2 font-semibold text-slate-800">
+                        <CheckCircle2
+                          size={19}
+                          className="text-emerald-600"
+                        />
+                        Assessment Result
                       </div>
-                    ) : assessment.status !== "published" ? (
-                      <div className="flex gap-2">
-                        <LockKeyhole size={18} className="shrink-0" />
-                        <p>This assessment is not published.</p>
-                      </div>
-                    ) : !assessment.hasApplied ? (
-                      <div className="flex gap-2">
-                        <LockKeyhole size={18} className="shrink-0" />
-                        <p>You have not applied for this job.</p>
-                      </div>
-                    ) : (
-                      <div className="flex gap-2">
-                        <LockKeyhole size={18} className="shrink-0" />
-                        <p>
-                          Your application is not shortlisted yet.
-                        </p>
-                      </div>
-                    )}
-                  </div>
 
-                  <button
-                    disabled={!isEligible}
-                    onClick={() => handleStart(assessment)}
-                    className={`mt-auto flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${
-                      isEligible
-                        ? "bg-violet-600 text-white hover:bg-violet-700"
-                        : "cursor-not-allowed bg-slate-100 text-slate-400"
-                    }`}
-                  >
-                    {isEligible ? (
-                      <>
-                        Start Assessment
-                        <ArrowRight size={17} />
-                      </>
-                    ) : (
-                      <>
-                        <LockKeyhole size={16} />
-                        Assessment Locked
-                      </>
-                    )}
-                  </button>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm text-slate-500">
+                          Marks Obtained
+                        </span>
+                        <span className="font-bold text-slate-900">
+                          {assessment.obtainedMarks ?? "N/A"}
+                          {" / "}
+                          {assessment.totalMarks ?? "N/A"}
+                        </span>
+                      </div>
+
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <span className="text-sm text-slate-500">
+                          Percentage
+                        </span>
+                        <span className="font-semibold text-slate-800">
+                          {assessment.percentage != null
+                            ? `${assessment.percentage}%`
+                            : "N/A"}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 border-t border-slate-200 pt-3">
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${
+                            assessment.result?.toLowerCase() === "pass"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : assessment.result?.toLowerCase() === "fail"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
+                        >
+                          {assessment.result || "Result Pending"}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Eligibility Message */}
+                      <div
+                        className={`mb-4 rounded-xl p-3 text-sm ${
+                          eligible
+                            ? "bg-emerald-50 text-emerald-800"
+                            : "bg-amber-50 text-amber-800"
+                        }`}
+                      >
+                        {eligible ? (
+                          <div className="flex gap-2">
+                            <CheckCircle2
+                              size={18}
+                              className="shrink-0"
+                            />
+                            <p>
+                              You are eligible to start this assessment.
+                            </p>
+                          </div>
+                        ) : assessment.status !== "published" ? (
+                          <div className="flex gap-2">
+                            <LockKeyhole
+                              size={18}
+                              className="shrink-0"
+                            />
+                            <p>This assessment is not published.</p>
+                          </div>
+                        ) : !assessment.hasApplied ? (
+                          <div className="flex gap-2">
+                            <LockKeyhole
+                              size={18}
+                              className="shrink-0"
+                            />
+                            <p>You have not applied for this job.</p>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2">
+                            <LockKeyhole
+                              size={18}
+                              className="shrink-0"
+                            />
+                            <p>
+                              Your application is not eligible yet.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Start Button */}
+                      <button
+                        disabled={!eligible}
+                        onClick={() => handleStart(assessment)}
+                        className={`mt-auto flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                          eligible
+                            ? "bg-violet-600 text-white hover:bg-violet-700"
+                            : "cursor-not-allowed bg-slate-100 text-slate-400"
+                        }`}
+                      >
+                        {eligible ? (
+                          <>
+                            Start Assessment
+                            <ArrowRight size={17} />
+                          </>
+                        ) : (
+                          <>
+                            <LockKeyhole size={16} />
+                            Assessment Locked
+                          </>
+                        )}
+                      </button>
+                    </>
+                  )}
                 </div>
               );
             })}
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-5 py-16 text-center">
-            <Search size={35} className="mx-auto text-slate-300" />
+            <Search
+              size={35}
+              className="mx-auto text-slate-300"
+            />
 
             <h3 className="mt-4 font-semibold text-slate-900">
               No assessments found

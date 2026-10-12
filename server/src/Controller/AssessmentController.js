@@ -170,44 +170,73 @@ const deleteAssessment = async (req, res) => {
 }
 
 const getAssessmentForCandidate = async (req, res) => {
-    try{
-        // const { assessmentId } = req.body;   
-        const candidateId = req.user.id;
+  try {
+    const candidateId = req.user.id;
 
-        const candidate = await Candidate.findById(candidateId);
-        if(!candidate || candidate.role !== 'candidate'){
-            return res.status(403).json({
-                success: false,
-                message: 'Access Denied'
-            });
-        }
+    // 1. Verify candidate
+    const candidate = await Candidate.findById(candidateId);
 
-        const application = await Application.find({ candidateId: candidateId, status: 'shortlisted'}).select('jobId');
-      
-
-        const jobsIds = application.map((app) => app.jobId);
-
-        const assessment = await Assessment.find({jobId: { $in: jobsIds}, status: 'published'}).populate('jobId', 'Title').select('-questions.correctAnswer');
-        // if(!assessment || assessment.length === 0){
-        //     return res.status(404).json({
-        //         success: false,
-        //         message: 'No Assessments Found'
-        //     });
-        // }
-
-        res.status(200).json({
-            success: true,
-            message: 'Assessments Fetched Successfully',
-            assessments: assessment
-        });
-        
-    }catch(error){
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+    if (!candidate || candidate.role !== "candidate") {
+      return res.status(403).json({
+        success: false,
+        message: "Access Denied",
+      });
     }
-}
+
+    // 2. Fetch published assessments
+    const assessments = await Assessment.find({
+      status: "published",
+    })
+      .populate("jobId", "Title")
+      .select("-questions.correctAnswer");
+
+    const assessmentIds = assessments.map(
+      (assessment) => assessment._id
+    );
+
+    // 3. Fetch candidate's attempts
+    const attemptedAssessments = await AttemptedAssessment.find({
+      CandidateId: candidateId,
+      assessmentId: { $in: assessmentIds },
+    }).lean();
+
+    // 4. Attach attempt result to each assessment
+    const assessmentsWithStatus = assessments.map((assessment) => {
+      const attempt = attemptedAssessments.find(
+        (item) =>
+          String(item.assessmentId) === String(assessment._id)
+      );
+
+      const attemptStatus = attempt?.status || null;
+
+      return {
+        ...assessment.toObject(),
+
+        isAttempted: Boolean(attempt),
+        attemptStatus,
+
+        // Result fields must exist in AttemptedAssessment documents
+        obtainedMarks: attempt?.score ?? null,
+        totalMarks: attempt?.totalMarks ?? null,
+        percentage: attempt?.percentage ?? null,
+        result: attempt?.result ?? null,
+      };
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Assessments Fetched Successfully",
+      assessments: assessmentsWithStatus,
+    });
+  } catch (error) {
+    console.error("Get Candidate Assessments Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 const submitAssessment = async (req, res) => {
     try{
