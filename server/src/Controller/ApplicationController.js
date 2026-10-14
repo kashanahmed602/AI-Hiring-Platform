@@ -4,7 +4,7 @@ const Recruiter = require('../Models/recruiterModel');
 
 const getApplications = async(req, res) => {
     try{
-        const applications = await Application.find({ candidateId: req.user.id }).populate('jobId').sort({ createdAt: -1 });
+        const applications = await Application.find({ candidateId: req.user.id }).populate('jobId').populate('candidateId').sort({ createdAt: -1 });
 
         if(!applications || applications.length === 0){
             return res.status(404).json({

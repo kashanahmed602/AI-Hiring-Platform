@@ -22,5 +22,6 @@ app.use('/api/v1', require('./Routes/authRoutes'))
 app.use('/api/v1', require('./Routes/JobRoutes'))
 app.use('/api/v1', require('./Routes/ApplicationRoutes'))
 app.use('/api/v1', require('./Routes/AssessmentRoutes'))
+app.use('/api/v1', require('./Routes/InterviewRoutes'))
 
 module.exports = app;
