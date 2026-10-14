@@ -87,9 +87,7 @@ const Interviews = () => {
     () =>
       applications.filter(
         (app) =>
-          app.status === "interviewed" ||
-          app.status === "Interview" ||
-          app.status === "shortlisted"
+          app.status === "interviewed"
       ),
     [applications]
   );
@@ -119,8 +117,8 @@ const Interviews = () => {
     const query = search.toLowerCase();
 
     const matchesSearch =
-      candidate?.name?.toLowerCase().includes(query) ||
-      candidate?.email?.toLowerCase().includes(query) ||
+      candidate?.resume.parsedData.personal.fullName?.toLowerCase().includes(query) ||
+      candidate?.resume.parsedData.personal.email?.toLowerCase().includes(query) ||
       job?.Title?.toLowerCase().includes(query) ||
       job?.title?.toLowerCase().includes(query);
 
@@ -296,7 +294,7 @@ const Interviews = () => {
                           className="flex w-full items-center gap-3 rounded-xl p-3 text-left hover:bg-violet-50"
                         >
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-100 font-bold text-violet-700">
-                            {candidate.name
+                            {candidate.resume.parsedData.personal.fullName
                               ?.split(" ")
                               .map((p) => p[0])
                               .slice(0, 2)
@@ -304,10 +302,10 @@ const Interviews = () => {
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-semibold text-slate-800">
-                              {candidate.name}
+                              {candidate.resume.parsedData.personal.fullName}
                             </p>
                             <p className="truncate text-xs text-slate-500">
-                              {candidate.jobTitle || "Job not found"}
+                              {candidate.resume.parsedData.professional.currentRole || "Job not found"}
                             </p>
                           </div>
                           <Plus size={17} className="text-violet-600" />
@@ -428,10 +426,10 @@ const Interviews = () => {
                       </div>
                       <div className="min-w-0">
                         <h3 className="font-semibold text-slate-900">
-                          {candidate?.name || "Unknown Candidate"}
+                          {candidate?.resume.parsedData.personal.fullName || "Unknown Candidate"}
                         </h3>
                         <p className="mt-1 text-sm text-slate-500">
-                          {candidate?.email || "No email"}
+                          {candidate?.resume.parsedData.personal.email || "No email"}
                         </p>
                         <p className="mt-2 flex items-center gap-2 text-sm text-slate-600">
                           <BriefcaseBusiness size={15} />

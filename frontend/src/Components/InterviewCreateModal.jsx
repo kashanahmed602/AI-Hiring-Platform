@@ -180,13 +180,13 @@ const InterviewCreateModal = ({
                   key={candidate._id}
                   value={String(candidate._id)}
                 >
-                  {candidate.name} — {candidate.email}
+                  {candidate.resume.parsedData.personal.fullName} — {candidate.resume.parsedData.personal.email}
                 </option>
               ))}
             </select>
           </div>
 
-          <div>
+          {/* <div>
             <label className={labelClass}>
               Application
             </label>
@@ -229,9 +229,9 @@ const InterviewCreateModal = ({
                   No applications found for this candidate.
                 </p>
               )}
-          </div>
+          </div> */}
 
-          <div>
+          {/* <div>
             <label className={labelClass}>
               <span className="inline-flex items-center gap-2">
                 <BriefcaseBusiness size={16} />
@@ -243,7 +243,7 @@ const InterviewCreateModal = ({
               {selectedJob?.title ||
                 "Select an application first"}
             </div>
-          </div>
+          </div> */}
 
           <div>
             <label className={labelClass}>
