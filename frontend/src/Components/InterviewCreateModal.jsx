@@ -5,7 +5,7 @@ import {
   UserRound,
   BriefcaseBusiness,
 } from "lucide-react";
-
+import axios from 'axios';
 const InterviewCreateModal = ({
   isOpen,
   onClose,
@@ -52,6 +52,23 @@ const InterviewCreateModal = ({
       setError("");
     }
   }, [isOpen, initialCandidateId]);
+
+  const createInterview = async (candidateId, jobId, applicationId, schedule) => {
+    try{
+        const response = await axios.post('http://localhost:3001/api/v1/interview-create', {
+            candidateId,
+            jobId,
+            applicationId,
+            schedule
+        },{
+            withCredentials: true,
+        })
+
+        alert('Interview Created Successfully');
+    }catch(error){
+        alert(error.message);
+    }
+  }
 
   if (!isOpen) return null;
 
@@ -144,7 +161,8 @@ const InterviewCreateModal = ({
     };
 
     // Demo callback; no API request.
-    onCreate(interviewData);
+    createInterview(formData.candidateId, formData.jobId, formData.applicationId, scheduledDate.toISOString());
+    // onCreate(interviewData);
     onClose();
   };
 

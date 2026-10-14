@@ -14,6 +14,12 @@ const interviewSchema = new mongoose.Schema({
         required: true
     },
 
+    recruiterId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Recruiter',
+        required: true
+    },
+
     applicationId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Application',

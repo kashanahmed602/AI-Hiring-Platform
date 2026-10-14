@@ -47,19 +47,28 @@ const Interviews = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:3001/api/v1/interviews", {
-          withCredentials: true,
-        });
+        const [applicationsResponse, interviewsResponse] = await Promise.all ([
+            axios.get("http://localhost:3001/api/v1/interviews", {
+                
+                withCredentials: true,
+            }),
+            axios.get('http://localhost:3001/api/v1/interviews/recruiter', {
+                withCredentials: true,
+            })
+        ]);
 
-        if (res.data?.success && Array.isArray(res.data.applications)) {
-          setApplications(res.data.applications);
+        if (applicationsResponse.data?.success && Array.isArray(applicationsResponse.data.applications)) {
+            setApplications(applicationsResponse.data.applications);
+        }
+        if (interviewsResponse.data?.success && Array.isArray(interviewsResponse.data.interviews)) {
+            setInterviews(interviewsResponse.data.interviews);
         }
       } catch (err) {
         console.error(err);
         alert(err.response?.data?.message || err.message || "Failed to load interviews");
-      } finally {
-        setLoading(false);
-      }
+        } finally {
+            setLoading(false);
+        }
     };
 
     fetchData();
@@ -418,7 +427,7 @@ const Interviews = () => {
                   >
                     <div className="flex min-w-0 items-start gap-3">
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-100 font-bold text-violet-700">
-                        {candidate?.name
+                        {candidate?.resume.parsedData.personal.fullName
                           ?.split(" ")
                           .map((p) => p[0])
                           .slice(0, 2)
