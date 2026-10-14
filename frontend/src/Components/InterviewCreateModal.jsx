@@ -1,14 +1,17 @@
-
-import { useEffect, useState } from "react";
-import { X, CalendarClock, UserRound, BriefcaseBusiness } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  X,
+  CalendarClock,
+  UserRound,
+  BriefcaseBusiness,
+} from "lucide-react";
 
 const InterviewCreateModal = ({
   isOpen,
   onClose,
   onCreate,
-  candidates = [],
   applications = [],
-  jobs = [],
+  initialCandidateId = "",
 }) => {
   const [formData, setFormData] = useState({
     candidateId: "",
@@ -19,62 +22,89 @@ const InterviewCreateModal = ({
 
   const [error, setError] = useState("");
 
+  // Build candidate dropdown from the applications.
+  // candidateId is populated in your API response.
+  const candidates = useMemo(() => {
+    const uniqueCandidates = new Map();
+
+    applications.forEach((application) => {
+      const candidate = application.candidateId;
+
+      if (candidate?._id) {
+        uniqueCandidates.set(String(candidate._id), candidate);
+      }
+    });
+
+    return Array.from(uniqueCandidates.values());
+  }, [applications]);
+
   useEffect(() => {
     if (isOpen) {
       setFormData({
-        candidateId: "",
+        candidateId: initialCandidateId
+          ? String(initialCandidateId)
+          : "",
         applicationId: "",
         jobId: "",
         schedule: "",
       });
+
       setError("");
     }
-  }, [isOpen]);
+  }, [isOpen, initialCandidateId]);
 
   if (!isOpen) return null;
 
+  // Applications belonging to the selected candidate.
   const candidateApplications = applications.filter(
     (application) =>
-      String(application.candidateId) === formData.candidateId
+      String(
+        application.candidateId?._id ??
+        application.candidateId
+      ) === formData.candidateId
   );
 
+  // Find the selected application using its actual MongoDB _id.
   const selectedApplication = applications.find(
     (application) =>
       String(application._id) === formData.applicationId
   );
 
-  const selectedJob = jobs.find(
-    (job) =>
-      String(job._id) ===
-      String(selectedApplication?.jobId || formData.jobId)
-  );
+  // jobId is populated as an object in your API response.
+  const selectedJob = selectedApplication?.jobId;
 
   const handleCandidateChange = (candidateId) => {
-    setFormData((prev) => ({
-      ...prev,
+    setFormData((previous) => ({
+      ...previous,
       candidateId,
       applicationId: "",
       jobId: "",
     }));
+
     setError("");
   };
 
-  const handleApplicationChange = (applicationId) => {
-    const application = applications.find(
+  const handleJobChange = (applicationId) => {
+    // The dropdown value is the APPLICATION ID, not the job ID.
+    const application = candidateApplications.find(
       (item) => String(item._id) === applicationId
     );
 
-    setFormData((prev) => ({
-      ...prev,
-      applicationId,
-      jobId: application ? String(application.jobId) : "",
+    const jobId = application?.jobId?._id
+      ? String(application.jobId._id)
+      : String(application?.jobId || "");
+
+    setFormData((previous) => ({
+      ...previous,
+      applicationId: application ? String(application._id) : "",
+      jobId,
     }));
 
     setError("");
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (event) => {
+    event.preventDefault();
 
     if (
       !formData.candidateId ||
@@ -82,7 +112,7 @@ const InterviewCreateModal = ({
       !formData.jobId ||
       !formData.schedule
     ) {
-      setError("Please fill in all fields.");
+      setError("Please select a candidate, job and date/time.");
       return;
     }
 
@@ -100,9 +130,12 @@ const InterviewCreateModal = ({
 
     const interviewData = {
       _id: `interview-${Date.now()}`,
+
+      // All three IDs come from the selected application.
       candidateId: formData.candidateId,
       applicationId: formData.applicationId,
       jobId: formData.jobId,
+
       schedule: scheduledDate.toISOString(),
       isCompleted: false,
       feedback: "",
@@ -110,7 +143,7 @@ const InterviewCreateModal = ({
       createdAt: new Date().toISOString(),
     };
 
-    // Dummy callback only. No API call.
+    // Demo callback; no API request.
     onCreate(interviewData);
     onClose();
   };
@@ -124,11 +157,12 @@ const InterviewCreateModal = ({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
       }}
     >
       <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
           <div>
             <div className="mb-1 flex items-center gap-2 text-violet-600">
@@ -143,14 +177,14 @@ const InterviewCreateModal = ({
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              Select a candidate and choose an interview time.
+              Select a candidate, their applied job and interview time.
             </p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+            className="rounded-xl p-2 text-slate-500 hover:bg-slate-100"
             aria-label="Close modal"
           >
             <X size={21} />
@@ -158,6 +192,7 @@ const InterviewCreateModal = ({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 p-6">
+          {/* Candidate dropdown */}
           <div>
             <label className={labelClass}>
               <span className="inline-flex items-center gap-2">
@@ -168,56 +203,73 @@ const InterviewCreateModal = ({
 
             <select
               value={formData.candidateId}
-              onChange={(e) =>
-                handleCandidateChange(e.target.value)
+              onChange={(event) =>
+                handleCandidateChange(event.target.value)
               }
               className={inputClass}
             >
               <option value="">Select a candidate</option>
 
-              {candidates.map((candidate) => (
-                <option
-                  key={candidate._id}
-                  value={String(candidate._id)}
-                >
-                  {candidate.resume.parsedData.personal.fullName} — {candidate.resume.parsedData.personal.email}
-                </option>
-              ))}
+              {candidates.map((candidate) => {
+                const candidateName =
+                  candidate.resume?.parsedData?.personal?.fullName ||
+                  candidate.name ||
+                  "Unnamed Candidate";
+
+                const candidateEmail =
+                  candidate.resume?.parsedData?.personal?.email ||
+                  candidate.email ||
+                  "";
+
+                return (
+                  <option
+                    key={candidate._id}
+                    value={String(candidate._id)}
+                  >
+                    {candidateName}
+                    {candidateEmail ? ` — ${candidateEmail}` : ""}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
-          {/* <div>
+          {/* Jobs applied for by the selected candidate */}
+          <div>
             <label className={labelClass}>
-              Application
+              <span className="inline-flex items-center gap-2">
+                <BriefcaseBusiness size={16} />
+                Applied Job
+              </span>
             </label>
 
             <select
               value={formData.applicationId}
-              onChange={(e) =>
-                handleApplicationChange(e.target.value)
+              onChange={(event) =>
+                handleJobChange(event.target.value)
               }
               disabled={!formData.candidateId}
               className={`${inputClass} disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400`}
             >
               <option value="">
                 {formData.candidateId
-                  ? "Select an application"
+                  ? "Select an applied job"
                   : "Select a candidate first"}
               </option>
 
               {candidateApplications.map((application) => {
-                const job = jobs.find(
-                  (item) =>
-                    String(item._id) ===
-                    String(application.jobId)
-                );
+                const job = application.jobId;
+                const jobTitle =
+                  typeof job === "object"
+                    ? job?.Title || job?.title || "Untitled Job"
+                    : "Job";
 
                 return (
                   <option
                     key={application._id}
                     value={String(application._id)}
                   >
-                    {job?.title || "Job"} — {application.status}
+                    {jobTitle}
                   </option>
                 );
               })}
@@ -226,38 +278,52 @@ const InterviewCreateModal = ({
             {formData.candidateId &&
               candidateApplications.length === 0 && (
                 <p className="mt-2 text-xs text-amber-600">
-                  No applications found for this candidate.
+                  No eligible applications found for this candidate.
                 </p>
               )}
-          </div> */}
+          </div>
 
-          {/* <div>
-            <label className={labelClass}>
-              <span className="inline-flex items-center gap-2">
-                <BriefcaseBusiness size={16} />
-                Job Position
-              </span>
-            </label>
+          {/* Selected job details */}
+          {/* {selectedApplication && (
+            <div className="rounded-xl border border-violet-100 bg-violet-50/60 p-4">
+              <p className="text-sm font-semibold text-slate-800">
+                {selectedJob?.Title ||
+                  selectedJob?.title ||
+                  "Selected Job"}
+              </p>
 
-            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-              {selectedJob?.title ||
-                "Select an application first"}
+              <p className="mt-1 text-xs text-slate-500">
+                {selectedJob?.Location ||
+                  selectedJob?.location ||
+                  "Location not specified"}
+              </p>
+
+              <p className="mt-3 break-all text-xs text-slate-500">
+                Application ID: {selectedApplication._id}
+              </p>
+
+              <p className="mt-1 break-all text-xs text-slate-500">
+                Job ID:{" "}
+                {selectedJob?._id || selectedApplication.jobId}
+              </p>
             </div>
-          </div> */}
+          )} */}
 
+          {/* Date and time */}
           <div>
             <label className={labelClass}>
-              Scheduled Date & Time
+              Scheduled Date &amp; Time
             </label>
 
             <input
               type="datetime-local"
               value={formData.schedule}
-              onChange={(e) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  schedule: e.target.value,
+              onChange={(event) => {
+                setFormData((previous) => ({
+                  ...previous,
+                  schedule: event.target.value,
                 }));
+
                 setError("");
               }}
               min={new Date(Date.now() + 60000)
@@ -273,18 +339,19 @@ const InterviewCreateModal = ({
             </div>
           )}
 
+          {/* Footer */}
           <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+              className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              className="rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition hover:bg-violet-700"
+              className="rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200 hover:bg-violet-700"
             >
               Create Interview
             </button>
