@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CalendarClock,
   Video,
@@ -32,6 +33,9 @@ const formatTime = (date) =>
   });
 
 const Interviews = () => {
+
+  const navigate = useNavigate();
+
   const [applications, setApplications] = useState([]);
   const [interviews, setInterviews] = useState([]); // will come from a real interviews endpoint later
   const [loading, setLoading] = useState(true);
@@ -185,6 +189,9 @@ const Interviews = () => {
         i._id === interviewId ? { ...i, recruiterStarted: true } : i
       )
     );
+
+    // Navigate to the video interview page
+    navigate(`/video-interview/${interviewId}`);
   };
 
   const handleAllowCandidate = (interviewId) => {
