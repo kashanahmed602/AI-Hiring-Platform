@@ -21,6 +21,7 @@ import CandidateAssessmentTest from './Pages/CandidateAssessmentTest'
 import AssessmentResults from './Pages/AssessmentResults'
 import AssessmentResultDetails from './Pages/AssessmentResultDetails';
 import Interviews from './Pages/Interviews'
+import CandidateInterviews from './Pages/CandidateInterviews'
 
 function App() {
   return (
@@ -46,6 +47,7 @@ function App() {
       <Route path='/candidate/assessments/results' element={<ProtectedRoutes><AssessmentResults/></ProtectedRoutes>} />
       <Route path='/candidate/assessments/results/:id' element={<ProtectedRoutes><AssessmentResultDetails/></ProtectedRoutes>} />
       <Route path='/recruiter/interviews' element={<ProtectedRoutes><Interviews/></ProtectedRoutes>} />
+      <Route path='/candidate/interviews' element={<ProtectedRoutes><CandidateInterviews/></ProtectedRoutes>} />
     </Routes>
   )
 }

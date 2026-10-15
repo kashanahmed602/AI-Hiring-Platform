@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const recruiterModel = new mongoose.Schema({
 
-    "Company Name":{
+    "Company":{
         type: String,
         required: true
     },

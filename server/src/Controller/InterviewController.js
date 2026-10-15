@@ -2,6 +2,7 @@ const Recruiter = require('../Models/recruiterModel');
 const Job = require('../Models/jobModel');
 const Application = require('../Models/ApplicatonModel');
 const Interview = require('../Models/InterviewModel');
+const Candidate = require('../Models/userModel');
 
 
 const getApplicationsForInterview = async (req, res) => {
@@ -114,4 +115,38 @@ const getInterviewsForRecruiter = async (req, res) => {
     }
 }
 
-module.exports = { getApplicationsForInterview, createInterview, getInterviewsForRecruiter };
+const getInterviewsForCandidate = async (req, res) => {
+    try{
+        const candidateId = req.user.id;
+        const candidate = await Candidate.findById(candidateId);
+
+        if(!candidate){
+            return res.status(403).json({
+                success: false,
+                message: "Access Deniessssd"
+            });
+        }
+
+        const interviews = await Interview.find({ candidateId }).populate('recruiterId', 'Company email').populate('jobId', 'Title').populate('applicationId');
+
+        if(!interviews || interviews.length === 0){
+            return res.status(404).json({
+                success: false,
+                message: "No Interviews Found"
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Interviews Fetched Successfully",
+            interviews: interviews
+        });
+    }catch(error){
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+}
+
+module.exports = { getApplicationsForInterview, createInterview, getInterviewsForRecruiter, getInterviewsForCandidate };
