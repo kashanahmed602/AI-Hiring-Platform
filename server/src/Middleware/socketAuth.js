@@ -1,32 +1,54 @@
-const cookie = require('cookie')
-const jwt = require('jsonwebtoken');
+
+const jwt = require("jsonwebtoken");
 
 const socketAuth = (socket, next) => {
-    try {
-        const cookieHeader = socket.handshake.headers.cookie;
+  try {
+    const cookieHeader = socket.handshake.headers.cookie;
 
-        if(!cookieHeader){
-            return next(new Error('Authentication required'));
-        }
+    if (!cookieHeader) {
+      console.log("Socket auth: Cookie header missing");
+      return next(new Error("Authentication cookie missing"));
+    }
 
-    const cookies = cookie.parse(cookieHeader);
+    // Parse cookies without an external package
+    const cookies = {};
+
+    cookieHeader.split(";").forEach((part) => {
+      const separatorIndex = part.indexOf("=");
+
+      if (separatorIndex === -1) return;
+
+      const name = part.slice(0, separatorIndex).trim();
+      const value = part.slice(separatorIndex + 1).trim();
+
+      cookies[name] = value;
+    });
+
     const token = cookies.token;
 
-    if(!token){
-        return next(new Error("Authentication token missing"));
+    if (!token) {
+      console.log("Socket auth: token cookie missing");
+      return next(new Error("Token cookie missing"));
     }
 
-     // Existing Express middleware ki tarah JWT verify karo
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Authenticated user ki information socket par available hogi
-    socket.user = decoded;
-
-    next();
-
-    }catch(error){
-        next(new Error("Invalid or expired authentication token"));
+    if (!decoded.id) {
+      console.log("Socket auth: JWT payload has no id");
+      return next(new Error("Invalid token payload"));
     }
-}
+
+    socket.user = decoded;
+    next();
+  } catch (error) {
+    console.error(
+      "Socket JWT verification failed:",
+      error.name,
+      error.message
+    );
+
+    next(new Error("Invalid or expired authentication token"));
+  }
+};
 
 module.exports = socketAuth;

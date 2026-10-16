@@ -3,6 +3,7 @@ const Job = require('../Models/jobModel');
 const Application = require('../Models/ApplicatonModel');
 const Interview = require('../Models/InterviewModel');
 const Candidate = require('../Models/userModel');
+const mongoose = require('mongoose');
 
 
 const getApplicationsForInterview = async (req, res) => {
@@ -149,4 +150,52 @@ const getInterviewsForCandidate = async (req, res) => {
     }
 }
 
-module.exports = { getApplicationsForInterview, createInterview, getInterviewsForRecruiter, getInterviewsForCandidate };
+
+const allowCandidate = async (req, res) => {
+  try {
+    const { interviewId } = req.params;
+    const recruiterId = req.user.id;
+
+    if (!mongoose.isValidObjectId(interviewId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid interview ID",
+      });
+    }
+
+    const interview = await Interview.findById(interviewId);
+
+    if (!interview) {
+      return res.status(404).json({
+        success: false,
+        message: "Interview not found",
+      });
+    }
+
+    if (String(interview.recruiterId) !== String(recruiterId)) {
+      return res.status(403).json({
+        success: false,
+        message: "You cannot allow a candidate for this interview",
+      });
+    }
+
+    interview.candidateAllowed = true;
+    await interview.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Candidate allowed to join the interview",
+      interview,
+    });
+  } catch (error) {
+    console.error("Allow candidate error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to allow candidate",
+    });
+  }
+};
+
+
+module.exports = { getApplicationsForInterview, createInterview, getInterviewsForRecruiter, getInterviewsForCandidate, allowCandidate };

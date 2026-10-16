@@ -1,5 +1,6 @@
 
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   CalendarDays,
@@ -55,10 +56,11 @@ const CandidateInterviews = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const navigate = useNavigate();
 
-  const fetchInterviews = async () => {
+  const fetchInterviews = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError("");
 
       const response = await axios.get(API_URL, {
@@ -92,6 +94,13 @@ const CandidateInterviews = () => {
 
   useEffect(() => {
     fetchInterviews();
+
+    // Keep the candidate dashboard in sync after the recruiter allows entry.
+    const intervalId = setInterval(() => {
+      fetchInterviews(true);
+    }, 5000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const categorizedInterviews = useMemo(() => {
@@ -132,6 +141,13 @@ const CandidateInterviews = () => {
     if (interview.isCompleted) {
       return {
         label: "Completed",
+        className: "bg-emerald-50 text-emerald-700",
+      };
+    }
+
+    if (interview.candidateAllowed === true) {
+      return {
+        label: "Ready to join",
         className: "bg-emerald-50 text-emerald-700",
       };
     }
@@ -444,11 +460,24 @@ const CandidateInterviews = () => {
                         </p>
                       )}
 
-                      {!interview.isCompleted && (
+                      {!interview.isCompleted && interview.candidateAllowed === true && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate(`/video-interview/${interview._id}`)
+                          }
+                          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 font-semibold text-white transition hover:bg-violet-700"
+                        >
+                          <Video size={18} />
+                          Join Interview
+                        </button>
+                      )}
+
+                      {!interview.isCompleted && interview.candidateAllowed !== true && (
                         <div className="mt-5 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50/70 p-3 text-sm text-blue-800">
                           <Clock3 size={17} className="mt-0.5 shrink-0" />
                           <p>
-                            Please be ready at your scheduled interview time.
+                            Waiting for the recruiter to allow you to join the interview.
                           </p>
                         </div>
                       )}

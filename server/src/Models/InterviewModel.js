@@ -45,6 +45,12 @@ const interviewSchema = new mongoose.Schema({
         type: Date,
         default: null
     },
+
+    candidateAllowed: {
+        type: Boolean,
+        default: false
+    },
+    
 }, {
     timestamps: true
 });

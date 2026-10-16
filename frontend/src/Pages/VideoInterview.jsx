@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { Peer } from "peerjs";
+import axios from "axios";
 
 import {
   Video,
@@ -12,6 +13,7 @@ import {
   LoaderCircle,
   CircleAlert,
   ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 
 const SOCKET_URL =
@@ -39,6 +41,8 @@ const VideoInterview = () => {
   const [cameraOn, setCameraOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [candidateAllowed, setCandidateAllowed] = useState(false);
+  const [allowingCandidate, setAllowingCandidate] = useState(false);
 
   const callPeer = useCallback((remotePeerId) => {
     const peer = peerRef.current;
@@ -215,6 +219,34 @@ const VideoInterview = () => {
       }
     };
   }, [interviewId, callPeer]);
+
+  const handleAllowCandidate = async () => {
+    try {
+      setAllowingCandidate(true);
+      setError("");
+
+      const response = await axios.patch(
+        `http://localhost:3001/api/v1/interviews/${interviewId}/allow-candidate`,
+        {},
+        { withCredentials: true }
+      );
+
+      if (response.data?.success) {
+        setCandidateAllowed(true);
+        setStatus("Candidate is allowed to join the interview.");
+      } else {
+        setError(response.data?.message || "Could not allow candidate.");
+      }
+    } catch (err) {
+      console.error("Allow candidate error:", err);
+      setError(
+        err.response?.data?.message ||
+          "Could not allow candidate. Please try again."
+      );
+    } finally {
+      setAllowingCandidate(false);
+    }
+  };
 
   const startCamera = async () => {
     try {
@@ -406,6 +438,26 @@ const VideoInterview = () => {
             <Video size={18} />
             Start Camera
           </button>
+
+          {role === "recruiter" && (
+            <button
+              type="button"
+              onClick={handleAllowCandidate}
+              disabled={candidateAllowed || allowingCandidate}
+              className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {allowingCandidate ? (
+                <LoaderCircle size={18} className="animate-spin" />
+              ) : (
+                <CheckCircle2 size={18} />
+              )}
+              {allowingCandidate
+                ? "Allowing Candidate..."
+                : candidateAllowed
+                ? "Candidate Allowed"
+                : "Allow Candidate"}
+            </button>
+          )}
 
           {!role && (
             <p className="mt-2 text-sm text-slate-500">
