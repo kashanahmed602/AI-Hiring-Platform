@@ -23,7 +23,7 @@ const CandidateAssessments = () => {
     const fetchAssessments = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/v1/candidate/assessments",
+          `${import.meta.env.WEB_URL}/candidate/assessments`,
           { withCredentials: true }
         );
 

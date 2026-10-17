@@ -31,7 +31,7 @@ const RecruiterSignup = () => {
     }
 
     try{
-        const response = await axios.post('http://localhost:3001/api/v1/recruiter/register', {
+        const response = await axios.post(`${import.meta.env.WEB_URL}/recruiter/register`, {
             "Company Name": companyName,
             email,
             password,

@@ -38,7 +38,7 @@ export const JobsSection = ({
       setLoading(true);
 
       const response = await axios.get(
-        "http://localhost:3001/api/v1/jobs-with-applications",
+        `${import.meta.env.WEB_URL}/jobs-with-applications`,
         {
           withCredentials: true,
         }
@@ -76,7 +76,7 @@ export const JobsSection = ({
       setLoading(true);
 
       const response = await axios.delete(
-        `http://localhost:3001/api/v1/jobDeleted/${id}`,
+        `${import.meta.env.WEB_URL}/jobDeleted/${id}`,
         {
           withCredentials: true,
         }

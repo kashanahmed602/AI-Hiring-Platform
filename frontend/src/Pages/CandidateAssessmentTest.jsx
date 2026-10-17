@@ -109,7 +109,7 @@ const CandidateAssessmentTest = ({ assessment, onExit }) => {
         // setSubmitted(true);
         // setShowSubmitConfirm(false);
 
-        await axios.post('http://localhost:3001/api/v1/candidate/assessments/submit',{
+        await axios.post(`${import.meta.env.WEB_URL}/candidate/assessments/submit`,{
             assessmentId: id,
             answers: answers,
             status: 'Completed'

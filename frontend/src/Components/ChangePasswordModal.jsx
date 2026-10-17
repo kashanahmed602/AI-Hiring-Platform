@@ -97,7 +97,7 @@ const ChangePasswordModal = ({
       setError("");
 
       const response = await axios.put(
-        "http://localhost:3001/api/v1/candidate/updatePassword",
+        `${import.meta.env.WEB_URL}/candidate/updatePassword`,
         {
           currentPassword,
           newPassword,

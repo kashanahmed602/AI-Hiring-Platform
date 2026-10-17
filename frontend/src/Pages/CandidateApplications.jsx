@@ -23,7 +23,7 @@ const CandidateApplications = () => {
       try {
 
         const response = await axios.get(
-          "http://localhost:3001/api/v1/applications",
+          `${import.meta.env.WEB_URL}/applications`,
           {
             withCredentials: true,
           }

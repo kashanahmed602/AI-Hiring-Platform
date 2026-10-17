@@ -20,7 +20,7 @@ const CandidateLogin = () => {
 const login = async (e) => {
     e.preventDefault();
     try{
-        const response = await axios.post('http://localhost:3001/api/v1/candidate/login', {
+        const response = await axios.post(`${import.meta.env.WEB_URL}/candidate/login`, {
             email,
             password
         },{

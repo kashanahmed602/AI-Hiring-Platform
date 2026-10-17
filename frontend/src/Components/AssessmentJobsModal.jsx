@@ -14,7 +14,7 @@ const AssessmentJobsModal = ({ isOpen, onClose }) => {
 
         const fetchJobs = async () => {
             try{
-                const response = await axios.get('http://localhost:3001/api/v1/recruiter/jobs', {
+                const response = await axios.get(`${import.meta.env.WEB_URL}/recruiter/jobs`, {
                     withCredentials: true
                 });
     

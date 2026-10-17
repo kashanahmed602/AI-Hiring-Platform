@@ -95,7 +95,7 @@ const UploadResume = () => {
     formData.append("resume", selectedFile);
 
     const resume = await axios.post(
-      "http://localhost:3001/api/v1/candidate/resumeUpload",
+      `${import.meta.env.WEB_URL}/candidate/resumeUpload`,
       formData,
       {
         withCredentials: true,

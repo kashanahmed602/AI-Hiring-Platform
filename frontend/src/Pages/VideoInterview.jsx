@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL || "http://localhost:3001";
+  import.meta.env.WEB_URL;
 
 const VideoInterview = () => {
   const { interviewId } = useParams();
@@ -226,7 +226,7 @@ const VideoInterview = () => {
       setError("");
 
       const response = await axios.patch(
-        `http://localhost:3001/api/v1/interviews/${interviewId}/allow-candidate`,
+        `${import.meta.env.WEB_URL}/interviews/${interviewId}/allow-candidate`,
         {},
         { withCredentials: true }
       );

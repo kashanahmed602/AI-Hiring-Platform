@@ -70,7 +70,7 @@ const ViewJobModal = ({ job, onClose }) => {
       setUpdatingStatus(applicationId);
 
       await axios.put(
-        `http://localhost:3001/api/v1/application/${applicationId}/status`,
+        `${import.meta.env.WEB_URL}/application/${applicationId}/status`,
         {
           status,
         },

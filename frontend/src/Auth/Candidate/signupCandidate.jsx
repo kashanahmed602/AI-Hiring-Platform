@@ -28,7 +28,7 @@ const CandidateSignup = () => {
         alert("Password donot match")
     }
     try{
-        const response = await axios.post('http://localhost:3001/api/v1/candidate/register', {
+        const response = await axios.post(`${import.meta.env.WEB_URL}/candidate/register`, {
             name,
             email,
             password,

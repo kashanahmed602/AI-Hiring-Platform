@@ -67,7 +67,7 @@ const ResumeUploaded = ({ data }) => {
 
   const deleteResume = async () => {
     try {
-      const response = await axios.delete('http://localhost:3001/api/v1/resume/delete',{
+      const response = await axios.delete(`${import.meta.env.WEB_URL}/resume/delete`,{
         withCredentials: true
       });
       alert("Resume Deleted Successfully");

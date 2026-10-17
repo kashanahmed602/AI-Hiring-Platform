@@ -87,7 +87,7 @@ const EditJobModal = ({ job, onClose, onUpdated }) => {
       };
 
       const response = await axios.put(
-        `http://localhost:3001/api/v1/jobUpdated/${job._id}`,
+        `${import.meta.env.WEB_URL}/jobUpdated/${job._id}`,
         payload,
         {
           withCredentials: true,

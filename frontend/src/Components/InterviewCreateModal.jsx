@@ -55,7 +55,7 @@ const InterviewCreateModal = ({
 
   const createInterview = async (candidateId, jobId, applicationId, schedule) => {
     try{
-        const response = await axios.post('http://localhost:3001/api/v1/interview-create', {
+        const response = await axios.post(`${import.meta.env.WEB_URL}/interview-create`, {
             candidateId,
             jobId,
             applicationId,

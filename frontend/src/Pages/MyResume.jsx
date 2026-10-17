@@ -11,7 +11,7 @@ const MyResume = () => {
     const fetchResumeData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3001/api/v1/candidate/profile",
+          `${import.meta.env.WEB_URL}/candidate/profile`,
           {
             withCredentials: true,
           }

@@ -17,7 +17,7 @@ import {
   CalendarCheck,
 } from "lucide-react";
 
-const API_URL = "http://localhost:3001/api/v1/interviews/candidate";
+const API_URL = `${import.meta.env.WEB_URL}/interviews/candidate`;
 
 const formatDate = (date) => {
   if (!date) return "Date not scheduled";

@@ -52,11 +52,10 @@ const Interviews = () => {
       try {
         setLoading(true);
         const [applicationsResponse, interviewsResponse] = await Promise.all ([
-            axios.get("http://localhost:3001/api/v1/interviews", {
-                
+            axios.get(`${import.meta.env.WEB_URL}/interviews`, {
                 withCredentials: true,
             }),
-            axios.get('http://localhost:3001/api/v1/interviews/recruiter', {
+            axios.get(`${import.meta.env.WEB_URL}/interviews/recruiter`, {
                 withCredentials: true,
             })
         ]);

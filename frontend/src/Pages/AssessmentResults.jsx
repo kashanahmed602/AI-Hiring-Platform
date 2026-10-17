@@ -28,7 +28,7 @@ const AssessmentResults = () => {
       setError("");
 
       const response = await axios.get(
-        "http://localhost:3001/api/v1/recruiter/assessments/results",
+        `${import.meta.env.WEB_URL}/recruiter/assessments/results`,
         { withCredentials: true }
       );
 
