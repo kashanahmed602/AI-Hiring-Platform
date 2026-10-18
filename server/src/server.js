@@ -1,3 +1,5 @@
+console.log("🚀 HireFlow server is starting...");
+
 const app = require('./app');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -130,6 +132,10 @@ io.on('connection', (socket) => {
 
 
 
-httpServer.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT}`);
-})
+httpServer.on("error", (error) => {
+  console.error("❌ HTTP Server Error:", error);
+});
+
+httpServer.listen(PORT, "0.0.0.0", () => {
+  console.log(`✅ Server is running on port ${PORT}`);
+});
