@@ -11,7 +11,7 @@ const MyResume = () => {
     const fetchResumeData = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.WEB_URL}/candidate/profile`,
+          `${import.meta.env.VITE_API_URL}/candidate/profile`,
           {
             withCredentials: true,
           }

@@ -32,7 +32,7 @@ const ProfileModal = ({
       setLoading(true);
 
       const response = await axios.put(
-        `${import.meta.env.WEB_URL}/candidate/profileUpdate`,
+        `${import.meta.env.VITE_API_URL}/candidate/profileUpdate`,
         formData,
         {
           withCredentials: true,
@@ -57,7 +57,7 @@ const ProfileModal = ({
         // console.log("🔥 Fetching logged-in candidate profile...");
 
         const response = await axios.get(
-          `${import.meta.env.WEB_URL}/candidate/profile`,
+          `${import.meta.env.VITE_API_URL}/candidate/profile`,
           {
             withCredentials: true,
           }

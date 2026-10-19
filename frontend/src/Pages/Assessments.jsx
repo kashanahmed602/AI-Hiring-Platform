@@ -18,7 +18,7 @@ import axios from "axios";
 
 import AssessmentJobsModal from "../Components/AssessmentJobsModal";
 
-const API_URL = `${import.meta.env.WEB_URL}/recruiter`;
+const API_URL = `${import.meta.env.VITE_API_URL}/recruiter`;
 
 const Assessments = () => {
   const navigate = useNavigate();

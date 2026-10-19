@@ -68,7 +68,7 @@ const CreateAssessmentModal = ({ job, onClose, onBack, onFinish }) => {
 
     try{
     // UI only: AI generation API baad mein connect hogi.
-    const assessmentAI = await axios.post(`${import.meta.env.WEB_URL}/createAssessment`, {
+    const assessmentAI = await axios.post(`${import.meta.env.VITE_API_URL}/createAssessment`, {
         jobId: job._id,
         title,
         description,

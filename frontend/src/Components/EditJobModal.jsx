@@ -87,7 +87,7 @@ const EditJobModal = ({ job, onClose, onUpdated }) => {
       };
 
       const response = await axios.put(
-        `${import.meta.env.WEB_URL}/jobUpdated/${job._id}`,
+        `${import.meta.env.VITE_API_URL}/jobUpdated/${job._id}`,
         payload,
         {
           withCredentials: true,

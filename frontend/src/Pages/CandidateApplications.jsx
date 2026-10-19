@@ -23,7 +23,7 @@ const CandidateApplications = () => {
       try {
 
         const response = await axios.get(
-          `${import.meta.env.WEB_URL}/applications`,
+          `${import.meta.env.VITE_API_URL}/applications`,
           {
             withCredentials: true,
           }

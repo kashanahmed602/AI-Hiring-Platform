@@ -13,7 +13,7 @@ const ApplicantDetailsModal = ({ application, onClose }) => {
     try{
       setStatus(newStatus);
       
-      const updateStatus = await axios.put(`${import.meta.env.WEB_URL}/applications-status-update`, {
+      const updateStatus = await axios.put(`${import.meta.env.VITE_API_URL}/applications-status-update`, {
         applicationId: application._id,
         status: newStatus
       },

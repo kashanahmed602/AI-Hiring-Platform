@@ -35,7 +35,7 @@ const RecruiterDashboard = () => {
   const fetchJobs = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.WEB_URL}/jobs-with-applications`,
+        `${import.meta.env.VITE_API_URL}/jobs-with-applications`,
         {
           withCredentials: true,
         }

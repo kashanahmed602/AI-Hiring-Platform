@@ -37,7 +37,7 @@ const CandidateJobs = () => {
         setLoading(true);
 
         const response = await axios.get(
-          `${import.meta.env.WEB_URL}/jobs`,
+          `${import.meta.env.VITE_API_URL}/jobs`,
           {
             withCredentials: true,
           }
@@ -90,7 +90,7 @@ const CandidateJobs = () => {
     try {
 
       const apply = await axios.post(
-        `${import.meta.env.WEB_URL}/applyForJob`,
+        `${import.meta.env.VITE_API_URL}/applyForJob`,
         { jobId: job._id, matchScore: job.matchScore, matchDetails: job.matchDetails },
         {
           withCredentials: true,

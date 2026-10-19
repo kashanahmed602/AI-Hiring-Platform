@@ -28,7 +28,7 @@ const AssessmentResults = () => {
       setError("");
 
       const response = await axios.get(
-        `${import.meta.env.WEB_URL}/recruiter/assessments/results`,
+        `${import.meta.env.VITE_API_URL}/recruiter/assessments/results`,
         { withCredentials: true }
       );
 

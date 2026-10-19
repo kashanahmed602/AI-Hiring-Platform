@@ -21,7 +21,7 @@ const RecruiterLogin = () => {
 const login = async (e) => {
     e.preventDefault();
     try{
-        const response = await axios.post(`${import.meta.env.WEB_URL}/recruiter/login`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/recruiter/login`, {
             email,
             password
         },{

@@ -11,7 +11,7 @@ const Applications = () => {
     const fetchJobs = async () => {
       try {
         const { data } = await axios.get(
-          `${import.meta.env.WEB_URL}/jobs-with-applications`,
+          `${import.meta.env.VITE_API_URL}/jobs-with-applications`,
           { withCredentials: true }
         );
 

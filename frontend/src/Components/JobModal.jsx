@@ -26,7 +26,7 @@ const JobModal = ({ onClose }) => {
 
   const createJob = async () => {
     try{
-        const response = await axios.post(`${import.meta.env.WEB_URL}/createJob`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/createJob`, {
             Title: jobData.title,
             Location: jobData.location,
             JobType: jobData.jobType,

@@ -173,7 +173,7 @@ const Sidebar = ({
   const handleLogout = async () => {
     try {
       await axios.post(
-        `${import.meta.env.WEB_URL}/candidate/logout`,
+        `${import.meta.env.VITE_API_URL}/candidate/logout`,
         {},
         {
           withCredentials: true,

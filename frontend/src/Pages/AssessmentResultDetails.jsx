@@ -83,7 +83,7 @@ const AssessmentResultDetails = () => {
     try{
         console.log(id);
         setCandidateStatus(status);
-        const response = await axios.put(`${import.meta.env.WEB_URL}/applications-status-update`, {
+        const response = await axios.put(`${import.meta.env.VITE_API_URL}/applications-status-update`, {
             id,
             status
         }, {
