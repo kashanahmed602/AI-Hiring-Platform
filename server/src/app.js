@@ -31,9 +31,6 @@ app.use(cors({
   optionsSuccessStatus: 200
 }));
 
-// Preflight ke liye explicitly
-app.options('*', cors());
-
 app.use(cookieParser());
 app.use(express.json());
 
