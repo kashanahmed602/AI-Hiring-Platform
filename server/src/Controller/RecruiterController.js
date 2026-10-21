@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const cookie = require('cookie-parser');
+const authCookieOptions = require('../Utils/authCookieOptions');
 const Job = require('../Models/jobModel');
 
 const RecruiterRegister = async (req, res) => {
@@ -33,9 +34,7 @@ const RecruiterRegister = async (req, res) => {
         })
 
         res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            ...authCookieOptions,
             maxAge: 2 * 60 * 60 * 1000 // 2 hours
         });
 
@@ -89,9 +88,7 @@ const RecruiterLogin = async (req, res) => {
         })
 
             res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            ...authCookieOptions,
             maxAge: 2 * 60 * 60 * 1000 // 2 hours
         })
 

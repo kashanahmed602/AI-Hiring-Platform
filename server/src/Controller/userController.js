@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const cookie = require('cookie-parser');
+const authCookieOptions = require('../Utils/authCookieOptions');
 const imagekit = require('../config/imageKit');
 const extractResumeText = require('../Utils/ResumeTextExtraction');
 const parseResumeWithAI = require('../Utils/ParseResumeWithAI');
@@ -35,9 +36,7 @@ const userRegister = async (req, res) => {
         })
 
         res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            ...authCookieOptions,
             maxAge: 2 * 60 * 60 * 1000 // 2 hours
         });
 
@@ -91,9 +90,7 @@ const userLogin = async (req, res) => {
         })
 
             res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            ...authCookieOptions,
             maxAge: 2 * 60 * 60 * 1000 // 2 hours
         })
 
@@ -123,9 +120,7 @@ const userLogout = async (req, res) => {
         }
 
         res.clearCookie('token', {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none'
+            ...authCookieOptions
         });
 
         res.status(200).json({
