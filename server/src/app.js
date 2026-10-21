@@ -8,22 +8,24 @@ const { connectRedis } = require('./config/redis');
 
 const app = express();
 
-// const allowedOrigins = [
-//   'http://localhost:5173',
-//   'http://localhost:3000',
-//   'https://kas-hireflow.vercel.app'
-// ];
-
-// const cors = require('cors');
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://kas-hireflow.vercel.app'
+];
 
 app.use(cors({
-  origin: true,        // har origin allow
-  credentials: true
-}));
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-app.options('*', cors({
-  origin: true,
-  credentials: true
+    return callback(new Error(`Origin ${origin} is not allowed by CORS`));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
 
 app.use(cookieParser());
