@@ -10,11 +10,11 @@ const Candidate = require('./Models/userModel');
 const mongoose = require('mongoose');
 
 console.log("Starting HireFlow backend...");
-console.log("PORT:", process.env.PORT || 3001);
+console.log("PORT:", process.env.PORT || 8059);
 console.log("CLIENT_URL:", process.env.CLIENT_URL || "Not set");
 console.log("MONGODB_URI configured:", Boolean(process.env.MONGODB_URI));
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8059;
 
 const httpServer = http.createServer(app);
 
