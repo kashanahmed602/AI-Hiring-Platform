@@ -45,6 +45,7 @@ const CandidateSignup = () => {
         setConfirmPassword('');
         setPhone('');
         setRole('candidate');
+        navigate('/candidate/login');
     }catch(error){
         alert(error.message);
     }
