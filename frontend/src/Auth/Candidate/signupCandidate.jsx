@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const CandidateSignup = () => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ const CandidateSignup = () => {
         setPhone('');
         setRole('candidate');
     }catch(error){
-        alert("error.message");
+        alert(error.message);
     }
   }
 

@@ -10,6 +10,7 @@ import {
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
+// import { useNavigate } from "react-router-dom";
 
 const RecruiterSignup = () => {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ const RecruiterSignup = () => {
 
     try{
         const response = await axios.post(`${import.meta.env.VITE_API_URL}/recruiter/register`, {
-            "Company Name": companyName,
+            companyName,
             email,
             password,
             phone,
@@ -45,6 +46,7 @@ const RecruiterSignup = () => {
         setPhone('');
         setPassword('');
         setConfirmPassword('');
+        navigate('/recruiter/login');
     }catch(error){
         alert(error.message);
     }

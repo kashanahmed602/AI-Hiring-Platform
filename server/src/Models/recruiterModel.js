@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const recruiterModel = new mongoose.Schema({
 
-    "Company":{
+    Company:{
         type: String,
         required: true
     },
@@ -25,12 +25,12 @@ const recruiterModel = new mongoose.Schema({
 
     role: {
         type: String,
-        anum:["candidate", "recruiter"],
+        enum:["candidate", "recruiter"],
         default: "recruiter"
     }
 },
     {
-        timeStamps: true
+        timestamps: true
     }
 )
 

@@ -8,7 +8,15 @@ const Job = require('../Models/jobModel');
 
 const RecruiterRegister = async (req, res) => {
     try{
-        const { "Company Name": companyName, email, password, phone, role } = req.body;
+        const { email, password, phone, role } = req.body;
+        const companyName = req.body.companyName || req.body["Company Name"];
+
+        if (!companyName) {
+            return res.status(400).json({
+                success: false,
+                message: "Company name is required"
+            });
+        }
 
         const emailExists = await Recruiter.findOne({email});
 
@@ -22,7 +30,7 @@ const RecruiterRegister = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = await Recruiter.create({
-            "Company Name": companyName,
+            Company: companyName,
             email,
             password: hashedPassword,
             phone,
