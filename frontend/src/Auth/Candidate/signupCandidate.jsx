@@ -27,6 +27,7 @@ const CandidateSignup = () => {
     e.preventDefault();
     if(password !== confirmPassword) {
         alert("Password donot match")
+        return;
     }
     try{
         const response = await axios.post(`${import.meta.env.VITE_API_URL}/candidate/register`, {
