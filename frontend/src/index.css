@@ -1,1 +1,24 @@
 @import 'tailwindcss';
+
+button[data-api-loading='true'] {
+  cursor: wait;
+}
+
+button[data-api-loading='true']::after {
+  content: '';
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  margin-left: 0.55rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: middle;
+  animation: api-button-spin 0.7s linear infinite;
+}
+
+@keyframes api-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
