@@ -13,7 +13,7 @@ HireFlow is a full-stack hiring platform that brings candidates and recruiters t
 ## Tech stack
 
 - **Frontend:** React, Vite, React Router, Tailwind CSS
-- **Backend:** Node.js, Express, Socket.IO
+- **Backend:** Node.js, Express, Socket.IO, OAuth2.0
 - **Data and services:** MongoDB, Redis, OpenAI, Google Gemini, ImageKit
 - **Video:** PeerJS
 
