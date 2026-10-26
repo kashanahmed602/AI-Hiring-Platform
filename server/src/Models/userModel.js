@@ -11,6 +11,8 @@ const userModel = new mongoose.Schema({
     email: {
         type: String,
         required: true,
+        unique: true,
+        trim: true,
     },
 
     password: {
@@ -20,12 +22,12 @@ const userModel = new mongoose.Schema({
 
     phone: {
         type: String,
-        required: true
+        default: ""
     },
 
     role: {
         type: String,
-        anum:["candidate", "recruiter"],
+        enum:["candidate", "recruiter"],
         default: "candidate"
     },
 

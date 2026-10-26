@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
 // import { useNavigate } from "react-router-dom";
+import GoogleAuthButton from "../../Components/GoogleAuthButton";
 
 const RecruiterSignup = () => {
   const navigate = useNavigate();
@@ -314,6 +315,20 @@ const RecruiterSignup = () => {
               </button>
 
             </form>
+
+            
+<div className="my-6 flex items-center gap-3">
+  <div className="h-px flex-1 bg-slate-200" />
+  <span className="text-xs text-slate-400">OR CONTINUE WITH</span>
+  <div className="h-px flex-1 bg-slate-200" />
+</div>
+
+<GoogleAuthButton
+  role="recruiter"
+  companyName={companyName}
+  phone={phone}
+/>
+
 
             <p className="text-center text-sm text-slate-500 mt-7">
               Already have a company account?{" "}

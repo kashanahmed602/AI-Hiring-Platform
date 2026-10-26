@@ -5,12 +5,14 @@ const recruiterModel = new mongoose.Schema({
 
     Company:{
         type: String,
-        required: true
+        default: ""
     },
 
     email:{
         type: String,
         required: true,
+        unique: true,
+        trim: true,
     },
 
     password: {
@@ -20,7 +22,7 @@ const recruiterModel = new mongoose.Schema({
 
     phone: {
         type: String,
-        required: true
+        default: ""
     },
 
     role: {
