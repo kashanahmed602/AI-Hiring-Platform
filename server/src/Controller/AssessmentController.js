@@ -6,6 +6,7 @@ const Candidate = require('../Models/userModel');
 const Application = require('../Models/ApplicatonModel');
 const checkAssessment = require('../Utils/AssessmentCheck');
 const AttemptedAssessment = require('../Models/AttemptedAssessmentModel');
+const { redisClient } = require('../config/redis');
 
 const createAssessmentQuestions = async (req, res) => {
     try {
@@ -51,6 +52,7 @@ const createAssessmentQuestions = async (req, res) => {
         });
 
         await assessment.save();
+        await redisClient.del(`assessments:${recruiterId}`);
 
         res.status(201).json({
             success: true,
@@ -77,6 +79,17 @@ const getAssessments = async (req, res) => {
             });
         }
 
+        const cachedAssessments = await redisClient.get(`assessments:${recruiterId}`);
+
+        if(cachedAssessments){
+            
+            return res.status(200).json({
+                success: true,
+                message: 'Assessments Fetched Successfully from Cache',
+                assessments: JSON.parse(cachedAssessments)
+            })
+        }
+
         const assessments = await Assessment.find({ recruiterId: recruiterId }).populate('jobId', 'Title');
         if(!assessments){
             return res.status(404).json({
@@ -84,6 +97,14 @@ const getAssessments = async (req, res) => {
                 message: 'No Assessments Found'
             });
         }
+
+        await redisClient.set(
+            `assessments:${recruiterId}`,
+            JSON.stringify(assessments),
+            {
+                EX: 3000 // Cache for 50 minutes
+            }
+        )
 
         res.status(200).json({
             success: true,
@@ -252,12 +273,15 @@ const submitAssessment = async (req, res) => {
         }
         
         const assessment = await Assessment.findById(assessmentId);
+        
         if(!assessment || assessment.status !== 'published'){
             return res.status(404).json({
                 success: false,
                 message: 'Assessment Not Found'
             });
         }
+
+        const recruiterId = assessment.recruiterId.toString();
 
         const result = await checkAssessment(assessment.questions, answers, assessment.passingScore);
         if(!result){
@@ -278,6 +302,8 @@ const submitAssessment = async (req, res) => {
             answers: result.answers
         });
 
+        await redisClient.del(`assessment:${assessmentId}`); // Invalidate cache for this assessment
+        await redisClient.del(`assessmentResults:${recruiterId}`); // Invalidate cache for assessment results
         await attemptedAssessment.save();
 
         res.status(200).json({
@@ -305,6 +331,16 @@ const getAssessmentResults = async (req, res) => {
             });
         }
 
+        const cachedResults = await redisClient.get(`assessmentResults:${recruiterId}`);
+
+        if(cachedResults){
+            return res.status(200).json({
+                success: true,
+                message: 'Assessment Results Fetched Successfully from Cache',
+                assessmentResults: JSON.parse(cachedResults)
+            })
+        }
+
         const assessmentResults = await AttemptedAssessment.find({}).populate('assessmentId', 'questions title').populate('CandidateId', 'resume.parsedData.personal.fullName resume.parsedData.personal.email');
         if(!assessmentResults || assessmentResults.length === 0){
             return res.status(404).json({
@@ -312,6 +348,14 @@ const getAssessmentResults = async (req, res) => {
                 message: 'No Assessment Results Found'
             });
         }
+
+        await redisClient.set(
+            `assessmentResults:${recruiterId}`,
+            JSON.stringify(assessmentResults),
+            {
+                EX: 3000 // Cache for 50 minutes
+            }
+        );
 
         res.status(200).json({
             success: true,
@@ -348,6 +392,18 @@ const getAssessmentResultForSpecificJob = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Assessment ID is required",
+      });
+    }
+
+    const cachedAssessment = await redisClient.get(`assessment:${assessmentId}`);
+
+    if (cachedAssessment) {
+    //   console.log("Redis Hit for Assessment Results");  
+
+      return res.status(200).json({
+        success: true,
+        message: "Assessment Results Fetched Successfully from Cache",
+        assessmentResults: JSON.parse(cachedAssessment)
       });
     }
 
@@ -403,6 +459,14 @@ const getAssessmentResultForSpecificJob = async (req, res) => {
     );
 
     console.log("Results with Application:", resultsWithApplication);
+
+    await redisClient.set(
+      `assessment:${assessmentId}`,
+      JSON.stringify(resultsWithApplication),
+      {
+        EX: 3000 // Cache for 50 minutes
+      }
+    );
 
     // 6. Send response
     return res.status(200).json({

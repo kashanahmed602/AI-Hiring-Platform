@@ -290,6 +290,8 @@ const applyForJob = async (req, res) => {
             });
         }
 
+        const recruiter = await Recruiter.findById(job.CreatedBy);
+
         const existingApplicaton = await Application.findOne({ jobId, candidateId });
 
         if(existingApplicaton){
@@ -309,6 +311,7 @@ const applyForJob = async (req, res) => {
         })
 
         await application.save();
+        await redisClient.del(`jobsApplications:${recruiter}`);
 
         res.status(201).json({
             success: true,
