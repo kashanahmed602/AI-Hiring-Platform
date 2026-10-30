@@ -312,6 +312,7 @@ const applyForJob = async (req, res) => {
 
         await application.save();
         await redisClient.del(`jobsApplications:${recruiter}`);
+        await redisClient.del(`applications:${candidateId}`);
 
         res.status(201).json({
             success: true,

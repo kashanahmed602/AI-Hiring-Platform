@@ -5,6 +5,20 @@ const { redisClient } = require('../config/redis');
 
 const getApplications = async(req, res) => {
     try{
+
+        const candidate = req.user.id;
+
+        const cachedApplications = await redisClient.get(`applications:${candidate}`);
+
+        if(cachedApplications){
+            return res.status(200).json({
+                success: true,
+                message: "Applications Fetched Successfully from Cache",
+                applications: JSON.parse(cachedApplications)
+            });
+        }
+
+
         const applications = await Application.find({ candidateId: req.user.id }).populate('jobId').populate('candidateId').sort({ createdAt: -1 });
 
         if(!applications || applications.length === 0){
@@ -19,6 +33,14 @@ const getApplications = async(req, res) => {
             message: "Applcations Fetched Successfully",
             applications: applications
         })
+
+        await redisClient.set(
+            `applications:${candidate}`,
+            JSON.stringify(applications),
+            {
+                EX: 3000 // Cache for 50 minutes
+            }
+        );
     }catch(error){
         res.status(500).json({
             success: false,
