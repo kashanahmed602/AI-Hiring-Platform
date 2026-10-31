@@ -380,12 +380,12 @@ const CandidateDashboard = () => {
               PROFILE
           ========================================== */}
 
-          <section className="mb-6">
-            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-sm">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-4 min-w-0">
+          {/* <section className="mb-6"> */}
+            {/* <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-sm"> */}
+              {/* <div className="flex items-center justify-between gap-4"> */}
+                {/* <div className="flex items-center gap-4 min-w-0"> */}
                   {/* Avatar */}
-
+{/* 
                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-blue-500 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-violet-500/20 shrink-0">
                     {user.name
                       ?.split(" ")
@@ -393,11 +393,11 @@ const CandidateDashboard = () => {
                       .join("")
                       .slice(0, 2)
                       .toUpperCase()}
-                  </div>
+                  </div> */}
 
                   {/* User Info */}
 
-                  <div className="min-w-0">
+                  {/* <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <h2 className="text-lg sm:text-xl font-bold text-slate-900 truncate">
                         {user.name}
@@ -427,22 +427,22 @@ const CandidateDashboard = () => {
                         <span>{user.phone}</span>
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </div> */}
+                {/* </div> */}
 
                 {/* Edit Profile */}
 
-                <button
+                {/* <button
                   type="button"
                   onClick={() => setProfileModalOpen(true)}
                   title="Edit Profile"
                   className="shrink-0 w-10 h-10 rounded-xl border border-slate-200 bg-white text-slate-500 flex items-center justify-center hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition"
                 >
                   <UserRound size={17} />
-                </button>
-              </div>
-            </div>
-          </section>
+                </button> */}
+              {/* </div> */}
+            {/* </div> */}
+          {/* </section> */}
 
           {/* =========================================
               STATS
@@ -634,7 +634,7 @@ const CandidateDashboard = () => {
               RECOMMENDED JOBS
           ========================================== */}
 
-          <section className="mb-6">
+          {/* <section className="mb-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-bold text-slate-900">
@@ -694,7 +694,7 @@ const CandidateDashboard = () => {
                 </div>
               ))}
             </div>
-          </section>
+          </section> */}
 
           {/* =========================================
               RECENT NOTIFICATIONS
