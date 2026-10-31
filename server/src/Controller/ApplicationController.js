@@ -2,6 +2,7 @@ const Application = require('../Models/ApplicatonModel');
 const Job = require('../Models/jobModel');
 const Recruiter = require('../Models/recruiterModel');
 const { redisClient } = require('../config/redis');
+const Notifications = require('../Models/NotificationModel');
 
 const getApplications = async(req, res) => {
     try{
@@ -146,6 +147,32 @@ const updateStatus = async (req, res) => {
 
         application.status = status;
         await application.save();
+
+        const messages = {
+            shortlisted: "Congratulations! Your application has been shortlisted.",
+            interview: "Your application has moved to the interview stage.",
+            rejected: "Your application status has been updated to rejected.",
+            hired: "Congratulations! You have been hired.",
+            applied: "Your application status has been updated."
+        };
+
+        // Save notification in MongoDB
+        const notification = await Notifications.create({
+            recipientId: application.candidateId,
+            recipientModel: "Candidate",
+            message: messages[status],
+            type: "application_status",
+            relatedId: application._id
+        });
+
+        // Get existing Socket.IO instance
+        const io = req.app.get('io');
+
+        // Send real-time notification to candidate
+        io.to(`user:${application.candidateId}`).emit(
+            'new-notification',
+            notification
+        );
 
         res.status(200).json({
             success: true,

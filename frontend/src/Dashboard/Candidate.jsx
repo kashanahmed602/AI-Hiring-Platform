@@ -1,11 +1,7 @@
 import {
-  Bell,
   BriefcaseBusiness,
   CalendarDays,
-  CheckCircle2,
   ChevronRight,
-  Clock3,
-  FileText,
   Mail,
   Menu,
   Mic2,
@@ -14,10 +10,11 @@ import {
   Target,
   TrendingUp,
   UserRound,
-  X,
 } from "lucide-react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Link } from "react-router-dom";
 
 import Sidebar from "../Components/Sidebar";
 import ProfileModal from "../Pages/Profile";
@@ -29,6 +26,69 @@ const CandidateDashboard = () => {
   // =========================================
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // =========================================
+  // NOTIFICATIONS
+  // =========================================
+
+  const [notifications, setNotifications] = useState([]);
+  const [notificationsLoading, setNotificationsLoading] = useState(true);
+
+  const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:3001/api/v1";
+
+  const fetchNotifications = async () => {
+    try {
+      const response = await axios.get(
+        `${API_URL}/candidate/notifications`,
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        setNotifications(response.data.notifications || []);
+      }
+    } catch (error) {
+      console.error(
+        "Notifications error:",
+        error.response?.data || error.message
+      );
+    } finally {
+      setNotificationsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      const response = await axios.patch(
+        `${API_URL}/candidate/notifications/${notificationId}/read`,
+        {},
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        setNotifications((prev) =>
+          prev.map((notification) =>
+            notification._id === notificationId
+              ? { ...notification, isRead: true }
+              : notification
+          )
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Mark notification error:",
+        error.response?.data || error.message
+      );
+    }
+  };
+
+  const unreadCount = notifications.filter(
+    (notification) => !notification.isRead
+  ).length;
 
   // =========================================
   // PROFILE
@@ -182,33 +242,6 @@ const CandidateDashboard = () => {
     },
   ];
 
-  // =========================================
-  // UPCOMING
-  // =========================================
-
-  const upcomingItems = [
-    {
-      title: "AI Technical Interview",
-      company: "TechNova",
-      date: "Today",
-      time: "04:30 PM",
-      icon: Mic2,
-    },
-    {
-      title: "Technical Assessment",
-      company: "CloudCore",
-      date: "Tomorrow",
-      time: "11:00 AM",
-      icon: FileText,
-    },
-    {
-      title: "Application Update",
-      company: "Pixel Labs",
-      date: "Sep 24",
-      time: "10:00 AM",
-      icon: CheckCircle2,
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -305,14 +338,6 @@ const CandidateDashboard = () => {
                 </p>
               </div>
 
-              <button
-                type="button"
-                className="relative w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-50 transition"
-              >
-                <Bell size={18} />
-
-                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-violet-600 ring-2 ring-white" />
-              </button>
             </div>
           </div>
         </header>
@@ -465,10 +490,10 @@ const CandidateDashboard = () => {
               AI SCORE + RESUME
           ========================================== */}
 
-          <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+          {/* <section className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6"> */}
             {/* AI SCORE */}
 
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+            {/* <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
@@ -527,11 +552,11 @@ const CandidateDashboard = () => {
                   </button>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             {/* RESUME */}
 
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+            {/* <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
@@ -603,7 +628,7 @@ const CandidateDashboard = () => {
                 </div>
               </div>
             </div>
-          </section>
+          </section> */}
 
           {/* =========================================
               RECOMMENDED JOBS
@@ -672,70 +697,114 @@ const CandidateDashboard = () => {
           </section>
 
           {/* =========================================
-              UPCOMING
+              RECENT NOTIFICATIONS
           ========================================== */}
 
           <section>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
-                  Upcoming
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold text-slate-900">
+                    Recent Notifications
+                  </h2>
+
+                  {unreadCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 text-[10px] font-bold">
+                      {unreadCount} New
+                    </span>
+                  )}
+                </div>
 
                 <p className="text-xs text-slate-400 mt-1">
-                  Your next career activities
+                  Stay updated with your applications and interviews
                 </p>
               </div>
+
+              <Link
+                to="/candidate/notifications"
+                className="text-xs font-semibold text-violet-600 flex items-center gap-1 hover:text-violet-700"
+              >
+                View all
+                <ChevronRight size={14} />
+              </Link>
             </div>
 
             <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
-              {upcomingItems.map((item, index) => {
-                const Icon = item.icon;
-
-                return (
-                  <div
-                    key={item.title}
-                    className={`p-5 flex items-center gap-4 ${
-                      index !== upcomingItems.length - 1
-                        ? "border-b border-slate-100"
-                        : ""
-                    }`}
-                  >
-                    <div className="w-11 h-11 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
-                      <Icon size={18} />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-sm font-semibold text-slate-900">
-                        {item.title}
-                      </h3>
-
-                      <p className="text-xs text-slate-400 mt-1">
-                        {item.company}
-                      </p>
-                    </div>
-
-                    <div className="hidden sm:flex items-center gap-4 text-xs text-slate-400">
-                      <div className="flex items-center gap-1.5">
-                        <CalendarDays size={14} />
-                        {item.date}
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <Clock3 size={14} />
-                        {item.time}
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      className="w-9 h-9 rounded-xl hover:bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-700 transition"
-                    >
-                      <ChevronRight size={17} />
-                    </button>
+              {notificationsLoading ? (
+                <div className="p-8 text-center text-sm text-slate-400">
+                  Loading notifications...
+                </div>
+              ) : notifications.length === 0 ? (
+                <div className="p-8 text-center">
+                  <div className="w-12 h-12 mx-auto rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center">
+                    <Mail size={20} />
                   </div>
-                );
-              })}
+
+                  <h3 className="text-sm font-semibold text-slate-800 mt-3">
+                    No notifications yet
+                  </h3>
+
+                  <p className="text-xs text-slate-400 mt-1">
+                    Your application updates and interview notifications will appear here.
+                  </p>
+                </div>
+              ) : (
+                notifications.slice(0, 4).map((notification, index) => {
+                  const Icon =
+                    notification.type === "interview_scheduled"
+                      ? CalendarDays
+                      : BriefcaseBusiness;
+
+                  return (
+                    <div
+                      key={notification._id}
+                      className={`p-5 flex items-start gap-4 ${
+                        index !== Math.min(notifications.length, 4) - 1
+                          ? "border-b border-slate-100"
+                          : ""
+                      } ${!notification.isRead ? "bg-violet-50/40" : ""}`}
+                    >
+                      <div className="w-11 h-11 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+                        <Icon size={18} />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-semibold text-slate-900">
+                            {notification.type === "interview_scheduled"
+                              ? "Interview Scheduled"
+                              : notification.type === "application_status"
+                              ? "Application Update"
+                              : "New Notification"}
+                          </h3>
+
+                          {!notification.isRead && (
+                            <span className="w-2 h-2 rounded-full bg-violet-600 shrink-0" />
+                          )}
+                        </div>
+
+                        <p className="text-xs text-slate-500 mt-1 leading-5">
+                          {notification.message}
+                        </p>
+
+                        <p className="text-[11px] text-slate-400 mt-2">
+                          {new Date(notification.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+
+                      {!notification.isRead && (
+                        <button
+                          type="button"
+                          onClick={() => handleMarkAsRead(notification._id)}
+                          className="shrink-0 text-[11px] font-semibold text-violet-600 hover:text-violet-800"
+                        >
+                          Mark read
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </div>
           </section>
         </div>

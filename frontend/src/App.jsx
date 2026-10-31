@@ -24,6 +24,7 @@
   import CandidateInterviews from './Pages/CandidateInterviews'
   import VideoInterview from './Pages/VideoInterview'
   import WorkspaceLayout from './Components/WorkspaceLayout'
+  import Notifications from './Pages/Notifications'
 
   const workspaceRoute = (role, page) => (
     <ProtectedRoutes>
@@ -57,6 +58,8 @@
         <Route path='/recruiter/interviews' element={workspaceRoute('recruiter', <Interviews/>)} />
         <Route path='/candidate/interviews' element={workspaceRoute('candidate', <CandidateInterviews/>)} />
         <Route path='/video-interview/:interviewId' element={<ProtectedRoutes><VideoInterview/></ProtectedRoutes>} />
+        <Route path='/candidate/messages' element={<ProtectedRoutes><Notifications/></ProtectedRoutes>} />
+
       </Routes>
     )
   }

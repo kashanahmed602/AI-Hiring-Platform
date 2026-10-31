@@ -38,6 +38,7 @@ app.use('/api/v1', require('./Routes/JobRoutes'));
 app.use('/api/v1', require('./Routes/ApplicationRoutes'));
 app.use('/api/v1', require('./Routes/AssessmentRoutes'));
 app.use('/api/v1', require('./Routes/InterviewRoutes'));
+app.use('/api/v1', require('./Routes/notificationRoutes'));
 
 console.log("✅ All routes loaded successfully");
 

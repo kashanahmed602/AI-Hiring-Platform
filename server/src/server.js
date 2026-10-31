@@ -27,10 +27,19 @@ const io = new Server(httpServer, {
     transports: ['websocket', 'polling'],
 })
 
+app.set('io', io);
+
 io.use(socketAuth);
 
 io.on('connection', (socket) => {
     console.log("Socket Connected", socket.id);
+
+    //Personal Room for real time notifications
+
+    const userRoom = `user:${socket.user.id}`;
+    socket.join(userRoom);
+
+    console.log(`User joined notification room: ${userRoom}`);
 
     socket.on('join-interview', async ({ interviewId } = {}, callback) => {
         const reply = typeof callback === 'function' ? callback : () => {};
