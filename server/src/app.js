@@ -42,6 +42,7 @@ app.use('/api/v1', require('./Routes/notificationRoutes'));
 
 console.log("✅ All routes loaded successfully");
 
+
 connectDB();
 connectRedis();
 
