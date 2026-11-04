@@ -1,8 +1,9 @@
+
 {
   "rewrites": [
     {
       "source": "/api/v1/:path*",
-      "destination": "http://217.154.36.84:8059/api/v1/:path*"
+      "destination": "https://horde-shiny-bat.abasthan.app/api/v1/:path*"
     },
     {
       "source": "/(.*)",
