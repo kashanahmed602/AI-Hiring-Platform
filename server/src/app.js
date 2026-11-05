@@ -1,5 +1,7 @@
 console.log("🚀 Starting HireFlow app...");
 
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -9,10 +11,12 @@ const { connectRedis } = require('./config/redis');
 const app = express();
 
 const allowedOrigins = [
+  process.env.CLIENT_URL,
   'http://localhost:5173',
   'http://localhost:3000',
-  'https://kas-hireflow.vercel.app'
-];
+  'http://localhost:8059',
+  // 'https://kas-hireflow.vercel.app'
+].filter(Boolean); // Filter out any undefined values
 
 app.use(cors({
   origin(origin, callback) {
